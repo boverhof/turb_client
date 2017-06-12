@@ -1,0 +1,202 @@
+# Some simulation information
+#
+file|         mea-abs.bkp
+title|        MEA Carbon Capture Process
+author|       John Eslick
+date|         June 6, 2010
+description|  An Aspen simulation of an MEA absorber
+# IO Setup
+#
+#name|                        mode|    type|        description|                                                    FindNodeString
+#------------------------------------------------------------------------------------------------------------------------------------------------
+solvent.input.lean_load|     input|  double|       Moles of CO2 per mole of MEA in lean solvent|                   \Data\Streams\LEAN-00A\Input\FLOW\MIXED\CO2
+solvent.input.massFlow|      input|  double|       solvent flow rate including CO2 (lb/hr)|                        \Data\Streams\LEAN-00A\Input\TOTFLOW\MIXED
+
+gas.input.stream|            input|  table|        input stream conditions|                                        \Data\Streams\%r\Input\%c
+ 
+reactions.input.parameters|  input|  table|        Equalibrium constant paramters|                                 \Data\Reactions\Chemistry\EMEA\Input\%c\%r    
+
+absorber.input.main.massTrans.CL| input|  double|  coefficient for liquid mass transfer coefficient correlations, main section|  \Data\Blocks\ABSORBER\Input\PR_BS_CL\1 |  \Data\Blocks\ABSORBER\Input\PR_BS_CL\2
+absorber.input.main.massTrans.CV| input|  double|  coefficient for vapor mass transfer coefficient correlations, main section|   \Data\Blocks\ABSORBER\Input\PR_BS_CV\1 |  \Data\Blocks\ABSORBER\Input\PR_BS_CV\2
+absorber.input.top.P|        input|  double|       pressure at the top, stage 1, of the absorber (psia)|           \Data\Blocks\ABSORBER\Input\PRES1
+absorber.input.wash.ht|      input|  double|       absorber wash section packing height (ft)|                      \Data\Blocks\ABSORBER\Subobjects\Pack Rating\1\Input\PR_PACK_HT\1
+absorber.input.main.ht|      input|  double|       absorber main section packing height (ft)|                      \Data\Blocks\ABSORBER\Subobjects\Pack Rating\1\Input\PR_PACK_HT\2
+absorber.input.ic.dT|        input|  double|       temerature change in absorber intercooler (F)|                  \Data\Blocks\ABSORBER\Input\CS_DELT\P-1
+absorber.input.dia|          input|  double|       the diameter of the absorber column (ft)|                       \Data\Blocks\ABSORBER\Input\PR_DIAM\2
+
+absorber.output.ic.duty|     output| double|       absorber intercooler heat duty (Btu/hr)|                        \Data\Blocks\ABSORBER\Subobjects\Pumparounds\P-1\Output\DUTY4\P-1
+absorber.output.capacity|    output| double|       fractional capacity of absorber main section|                   \Data\Blocks\ABSORBER\Subobjects\Pumparounds\P-1\Output\FLOOD_FAC2\2
+absorber.output.dia|         output| double|       absorber diameter (ft) |                                        \Data\Blocks\ABSORBER\Subobjects\Pack Rating\2\Output\DIAM\2                                    
+absorber.output.profile.TandP| output| table|      absorber profiles|                                              \Data\Blocks\ABSORBER\Output\%c\%r
+absorber.output.profile.CO2|  output| table|       absorber profiles|                                              \Data\Blocks\ABSORBER\Subobjects\Pumparounds\P-1\Output\Y\%r\%c
+absorber.output.profile.kv|  output| table|        vapor mass transfer coeff for main section (lbmol/hr)|          \Data\Blocks\ABSORBER\Subobjects\Pumparounds\P-1\Output\MASS_LCOEF\Vapor\%r\%c
+absorber.output.profile.kl|  output| table|        liquid mass transfer coeff for main section (lbmol/hr)|         \Data\Blocks\ABSORBER\Subobjects\Pumparounds\P-1\Output\MASS_LCOEF\Liquid\%r\%c
+                                                                                                                  
+solvent.output.stream.mass| output| table|         solvent stream conditions mass basis|                           \Data\Streams\%r\Output\STR_MAIN\%c
+solvent.output.stream.mole| output| table|         solvent stream conditions mole basis|                           \Data\Streams\%r\Output\STR_MAIN\%c
+
+gas.output.stream.mass| output| table|             solvent stream conditions mass basis|                           \Data\Streams\%r\Output\STR_MAIN\%c
+gas.output.stream.mole| output| table|             solvent stream conditions mole basis|                           \Data\Streams\%r\Output\STR_MAIN\%c
+       
+
+#
+# Set up tables
+#
+
+rLabels|  gas.input.stream | Flue Gas to Abs  
+rStrings| gas.input.stream | FG-01           
+cLabels|  gas.input.stream | T (F)           | P (psia)         | m (lb/hr)     | x H20 (mass frac) | x MEA (mass frac) | x H2S mass (frac) | x CO2 (mass frac) | x N2 (mass frac)
+cStrings| gas.input.stream | TEMP\MIXED      | PRES\MIXED       | TOTFLOW\MIXED | FLOW\MIXED\H2O    | FLOW\MIXED\MEA    | FLOW\MIXED\H2S    | FLOW\MIXED\CO2    | FLOW\MIXED\N2  
+
+rLabels|  absorber.output.profile.TandP | top | 2 | 3 | 4 | mid | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | bottom | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+rStrings| absorber.output.profile.TandP | 1   | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+cLabels|  absorber.output.profile.TandP | Liq T (F) | Vap T (F) | P (psia)
+cStrings| absorber.output.profile.TandP | B_TEMP    | TVAP      | B_PRES
+
+rLabels|  absorber.output.profile.CO2 | top | 2 | 3 | 4 | mid | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | bottom | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+rStrings| absorber.output.profile.CO2 | 1   | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+cLabels|  absorber.output.profile.CO2 | y co2  | y H2O
+cStrings| absorber.output.profile.CO2 | CO2 | H2O
+
+rLabels|  absorber.output.profile.kv | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+rStrings| absorber.output.profile.kv | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+cLables|  absorber.output.profile.kv | CO2_N2
+cStrings| absorber.output.profile.kv | CO2/N2
+
+rLabels|  absorber.output.profile.kl | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+rStrings| absorber.output.profile.kl | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |31 | 32 | 33 | 34
+cLables|  absorber.output.profile.kl | CO2_H2O
+cStrings| absorber.output.profile.kl | CO2/H2O
+
+rLabels|  reactions.input.parameters| 1 | 2 | 3 | 4 | 5
+rStrings| reactions.input.parameters| 1 | 2 | 3 | 4 | 5
+cLables|  reactions.input.parameters| A | B | C | D
+cStrings| reactions.input.parameters| A | B | C | D
+
+rLabels|  solvent.output.stream.mass | LEAN-00A | WASH-01 | RICH-01  
+rStrings| solvent.output.stream.mass | LEAN-00A | WASH-01 | RICH-01 
+cLabels|  solvent.output.stream.mass | T (F)           | P (psia)         | m (lb/hr)     | x H20 (mass frac) | x MEA (mass frac) | x H2S mass (frac) | x CO2 (mass frac) | x HCO3- (mass frac) | x MEACOO- (mass frac) | x MEA+ (mass frac) | x CO3-2 (mass frac)  | x HS- (mass frac)  | x S-2 (mass frac) | x H3O+ (mass frac) | x OH- (mass frac) | x N2 (mass frac)  
+cStrings| solvent.output.stream.mass | TEMP\MIXED      | PRES\MIXED       | MASSFLMX\MIXED| MASSFRAC\MIXED\H2O| MASSFRAC\MIXED\MEA| MASSFRAC\MIXED\H2S| MASSFRAC\MIXED\CO2| MASSFRAC\MIXED\HCO3-| MASSFRAC\MIXED\MEACOO-| MASSFRAC\MIXED\MEA+| MASSFRAC\MIXED\CO3-2 | MASSFRAC\MIXED\HS- | MASSFRAC\MIXED\S-2| MASSFRAC\MIXED\H3O+| MASSFRAC\MIXED\OH-| MASSFRAC\MIXED\N2
+
+rLabels|  gas.output.stream.mass | FG-01 | FG-02   
+rStrings| gas.output.stream.mass | FG-01 | FG-02  
+cLabels|  gas.output.stream.mass | T (F)           | P (psia)         | m (lb/hr)     | x H20 (mass frac) | x MEA (mass frac) | x H2S mass (frac) | x CO2 (mass frac) | x N2 (mass frac)  
+cStrings| gas.output.stream.mass | TEMP\MIXED      | PRES\MIXED       | MASSFLMX\MIXED| MASSFRAC\MIXED\H2O| MASSFRAC\MIXED\MEA| MASSFRAC\MIXED\H2S| MASSFRAC\MIXED\CO2| MASSFRAC\MIXED\N2
+
+rLabels|  solvent.output.stream.mole | LEAN-00A | WASH-01 | RICH-01 
+rStrings| solvent.output.stream.mole | LEAN-00A | WASH-01 | RICH-01 
+cLabels|  solvent.output.stream.mole | mol (lbmol/hr)   | x H20 (mole frac) | x MEA (mole frac) | x H2S mole (frac) | x CO2 (mole frac) | x HCO3- (mole frac) | x MEACOO- (mole frac) | x MEA+ (mole frac) | x CO3-2 (mole frac)  | x HS- (mole frac)  | x S-2 (mole frac) | x H3O+ (mole frac) | x OH- (mole frac) | x N2 (mole frac)  
+cStrings| solvent.output.stream.mole | MOLEFLMX\MIXED| MOLEFRAC\MIXED\H2O| MOLEFRAC\MIXED\MEA| MOLEFRAC\MIXED\H2S| MOLEFRAC\MIXED\CO2| MOLEFRAC\MIXED\HCO3-| MOLEFRAC\MIXED\MEACOO-| MOLEFRAC\MIXED\MEA+| MOLEFRAC\MIXED\CO3-2 | MOLEFRAC\MIXED\HS- | MOLEFRAC\MIXED\S-2| MOLEFRAC\MIXED\H3O+| MOLEFRAC\MIXED\OH-| MOLEFRAC\MIXED\N2
+
+rLabels|  gas.output.stream.mole | FG-01 | FG-02 
+rStrings| gas.output.stream.mole | FG-01 | FG-02 
+cLabels|  gas.output.stream.mole | mol (lbmol/hr)   | x H20 (mole frac) | x MEA (mole frac) | x H2S mole (frac) | x CO2 (mole frac) | x N2 (mole frac)  
+cStrings| gas.output.stream.mole | MOLEFLMX\MIXED   | MOLEFRAC\MIXED\H2O| MOLEFRAC\MIXED\MEA| MOLEFRAC\MIXED\H2S| MOLEFRAC\MIXED\CO2| MOLEFRAC\MIXED\N2
+
+
+
+
+#
+#  Set max min and defaults
+#
+#
+
+# Limits taken from optimization constraints
+#
+default | solvent.input.lean_load | 0.265
+min     | solvent.input.lean_load | 0.15
+max     | solvent.input.lean_load | 0.33
+
+# Solvent Flow Limits are kind of a guess for now 
+#
+#default | solvent.input.massFlow|   4319500
+#min | solvent.input.massFlow|       3500000
+#max | solvent.input.massFlow|       4500000
+
+# This is the flue gas composition comming out of the flue gas polishing model
+# it is 1/5 of the total flow from a 550 Net MW powerplant.  There are 5 MEA modules
+#
+#default | gas.input.stream|  134.4 | 16   | 959553 | 0.071  | 0   | 0   | 0.211  | 0.718
+#min     | gas.input.stream|  134.4 | 16   | 959553 | 0.071  | 0   | 0   | 0.211  | 0.718
+#max     | gas.input.stream|  134.4 | 16   | 959553 | 0.071  | 0   | 0   | 0.211  | 0.718       
+
+# I don't know the limits for these
+# I think it is to be desided by the UQ team
+#
+#default  | reactions.input.parameters| 0.7996    | -8094.81    | 0        | -0.007484
+                                        98.566    |  1353.8     | -14.3043 | 0
+                                        216.049   | -12431.7    | -35.4819 | 0
+                                        1.282562  | -3456.179   | 0        | 0
+                                        132.899   | -13445.9    | -22.4773 | 0
+ 
+#min      | reactions.input.parameters|  0.7996    | -8094.81    | 0        | -0.007484
+                                         98.566    |  1353.8     | -14.3043 | 0
+                                         216.049   | -12431.7    | -35.4819 | 0
+                                         1.282562  | -3456.179   | 0        | 0
+                                         132.899   | -13445.9    | -22.4773 | 0
+
+#max      | reactions.input.parameters|  0.7996    | -8094.81    | 0        | -0.007484
+                                         98.566    |  1353.8     | -14.3043 | 0
+                                         216.049   | -12431.7    | -35.4819 | 0
+                                         1.282562  | -3456.179   | 0        | 0
+                                         132.899   | -13445.9    | -22.4773 | 0
+
+
+
+# I don't know the limits for these
+# I think it is to be desided by the UQ team
+#
+#default | absorber.input.main.massTrans.CL| 2.3
+#min     | absorber.input.main.massTrans.CL| 2.3
+#max     | absorber.input.main.massTrans.CL| 2.3
+
+
+# I don't know the limits for these
+# I think it is to be desided by the UQ team
+#
+#default | absorber.input.main.massTrans.CV| 0.22
+#min     | absorber.input.main.massTrans.CV| 0.22
+#max     | absorber.input.main.massTrans.CV| 0.22
+
+
+# This probably does not need to be changed
+# 
+#default | absorber.input.top.P|   15     
+#min     | absorber.input.top.P|   15   
+#max     | absorber.input.top.P|   15   
+
+# This probably does not need to be changed
+# 
+#default | absorber.input.wash.ht| 5
+#min     | absorber.input.wash.ht| 5
+#max     | absorber.input.wash.ht| 5   
+
+# Limits taken from optimization constraints
+#
+#default | absorber.input.main.ht| 12.6
+#min     | absorber.input.main.ht| 10
+#max     | absorber.input.main.ht| 20 
+
+# Limits taken from optimization constraints
+#
+#default | absorber.input.ic.dT| -17.9
+#min     | absorber.input.ic.dT| -18
+#max     | absorber.input.ic.dT| 0    
+
+# Limits taken from design spec limits and 
+# 30ft dia is about the limit of what is reasonable to construct
+# 
+#default | absorber.input.dia| 26.32
+#min     | absorber.input.dia| 20
+#max     | absorber.input.dia| 30      
+
+
+
+
+
+
+
+
+
+
+

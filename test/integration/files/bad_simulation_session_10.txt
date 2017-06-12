@@ -1,0 +1,21 @@
+[
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"},
+
+{"Inputs": {"reactions.input.parameters(4,0)": "1.328578867187e+02", "absorber.input.main.masstrans.cv": "2.133484375000e-01", "absorber.input.wash.masstrans.cv": "2.133484375000e-01", "reactions.input.parameters(1,0)": "9.856565390625e+01", "reactions.input.parameters(0,0)": "8.745164071484e-01"}, "Simulation": "xmea-uq-billet-1"}
+]

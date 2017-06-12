@@ -1,0 +1,30 @@
+[{
+  "Simulation":"simpleExcelTest",
+  "Input": {
+    "height.jim": {
+      "value": 74.0,
+      "units": "in"
+    },
+    "weight.jim": {
+      "value": 167.0,
+      "units": "lb"
+    },
+    "height.joe": {
+      "value": 12.0,
+      "units": "in"
+    },
+    "weight.joe": {
+      "value": 15.43,
+      "units": "lb"
+    },
+    "height.mama": {
+      "value": 62.0,
+      "units": "in"
+    },
+    "weight.mama": {
+      "value": 521.56,
+      "units": "lb"
+    }
+  }
+}
+]

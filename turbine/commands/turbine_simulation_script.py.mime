@@ -1,0 +1,201 @@
+#!/usr/bin/env python
+"""
+turbine_simulation_script.py
+
+See Copyright for copyright notice!
+"""
+import urllib2,csv,sys,os,json,mimetypes
+import logging as _log
+import optparse
+from urllib2 import HTTPError
+from turbine.commands import add_options, add_json_option, get_page, get_paging, put_page, post_page,\
+    _open_config, load_pages_json
+
+SECTION = "Simulation"
+
+
+def _print_json(data, verbose=False, out=sys.stdout):
+    if type(data) in (list, dict):
+        json.dump(data, out)
+    else:
+        print >>out, data,
+        
+def _print_simulation_list(all, verbose=False, out=sys.stdout):
+    print >>out, "Total Simulations: %d" %len(all)
+    for sim in all:
+        if not verbose:
+            print >>out, "\t%s" %(sim['Name'])
+            continue
+        print >>out, "=="*30
+        print >>out,"=="*30
+        print >>out,"%12s" %(sim['Name'])
+        if verbose:
+            for k,v in sim.items():
+                print >>out,"\t%12s: %12s" %(k,v)
+            
+
+def main_create(args=None):
+    """Create an empty Simulation Resource
+    """
+    op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME APPLICATION_NAME CONFIG_FILE", 
+             description=main_create.__doc__)
+
+    (options, args) = op.parse_args(args)
+    if len(args) != 3:
+        op.error('expecting 3 arguments')
+
+    cp = _open_config(args[2])
+    application = args[1]
+    simulation = args[0]                     
+    query = dict(subresource=simulation)
+    data = json.dumps(dict(Application=application, StagedInputs=[], Name=simulation))
+
+    try:
+        data = put_page(cp, SECTION, data, content_type='application/json', **query)
+    except HTTPError, ex:
+        _log.error(ex)
+        if hasattr(ex, 'readlines'):
+            _log.error("".join(ex.readlines()))
+        elif hasattr(ex, 'read'):
+            _log.error("".join(ex.read()))
+
+        raise
+    return json.loads(data)
+
+
+def main_update(args=None):
+    """Update simulation by essentially doing a PUT with the specified file to the resource or optionally sub-resource.
+    """
+    op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME FILE_NAME CONFIG_FILE", 
+             description=main_update.__doc__)
+
+    #add_options(op)
+    op.add_option("-r", "--resource",
+                  action="store", dest="resource",
+                  help="select the staged input file name (matches Application)")
+    (options, args) = op.parse_args(args)
+    if len(args) != 3:
+        op.error('expecting 3 arguments')
+        
+    log = _log.getLogger('%s.main_update' %__name__)
+    log.debug(args)
+    
+    file_name = args[1]
+    if not os.path.isfile(file_name):
+        op.error('expecting a file for argument 2')
+                
+    if options.resource is None:
+        op.error('require resource option to be specified')        
+        
+    configFile = _open_config(args[2])
+    simulation = args[0]
+    query = {}
+    out = sys.stdout
+
+    query['subresource'] = '%s/input/%s' %(simulation, options.resource)
+
+    mime_type,encoding = mimetypes.guess_type(file_name)
+    contents = None
+
+    log.debug('File Name: "%s"', file_name)
+    log.debug('MIME TYPE (%s,%s)', mime_type,encoding)
+    
+    ##  NOTE: Incomplete
+    if mime_type in ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 
+        'application/msexcel', 'application/x-msexcel', 'application/x-ms-excel', 'application/x-excel', 
+        'application/x-dos_ms_excel', 'application/xls', 'application/x-xls']:
+
+        contents = open(file_name, 'rb').read()
+        query['content_type'] = mime_type
+    elif mime_type in ['application/json', 'text/plain', 'application/xml']:
+        contents = open(file_name).read()
+        query['content_type'] = mime_type
+    else:
+        contents = open(file_name, 'rb').read()
+
+    try:
+        data = put_page(configFile, SECTION, contents, **query)
+    except HTTPError, ex:
+        _log.error("HTTP Code %d :  %s", ex.code, ex.msg)
+        if hasattr(ex, 'readlines'): 
+            _log.debug("".join(ex.readlines()))
+        else: 
+           _log.debug("".join(ex.read()))
+        raise
+    except urllib2.URLError, ex:
+        _log.error("URLError :  %s", ex.reason)
+        raise
+                         
+    return data
+
+
+def main_get(args=None, func=_print_json):
+    """Retrieves the Simulation resource, by default prints as JSON.
+    """
+    op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME CONFIG_FILE", 
+             description=main_get.__doc__)
+
+    #add_options(op)
+    op.add_option("-r", "--resource", 
+                  action="store", dest="resource",
+                  help="return only the specified input subresource")
+    op.add_option("-s", "--save", 
+                  action="store_true", dest="save",
+                  help="Save the resource as a file")
+    
+    (options, args) = op.parse_args(args)
+    if len(args) != 2:
+        op.error('expecting 2 arguments')
+
+    configFile = _open_config(args[-1])
+    simulation = args[0]
+        
+    query = {}
+    fileName = 'simulation_%s' %(simulation)
+    if options.resource:
+        fileName += '_%s' %options.resource
+        query['subresource'] = '%s/input/%s' %(simulation,options.resource)
+        data = get_page(configFile, SECTION, **query)
+    else:
+        query['subresource'] = '%s' %(simulation)
+        data = json.loads(get_page(configFile, SECTION, **query))
+        
+    if func:
+        out = sys.stdout
+        if options.save: 
+            out = open('%s.txt' %fileName, 'w')
+        func(data, out=out)
+        
+    return data
+
+
+def main_list(args=None, func=_print_simulation_list):
+    """Retrieves list of all simulations, by default prints in human readable format.
+    """
+    op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE", 
+             description=main_list.__doc__)
+    add_options(op)
+    add_json_option(op)
+    (options, args) = op.parse_args(args)
+    
+    if len(args) != 1:
+        op.error('expecting 1 argument')
+    if options.json:
+        func = _print_json
+
+    configFile = _open_config(args[0])
+    query = {}
+
+    options.page = 1
+    content = get_page(configFile, SECTION, **query)
+    data = load_pages_json([content])
+    if func:
+        func(data, options.verbose)
+#    print data
+    return data
+
+
+
+
+if __name__ == "__main__":
+    main_list()

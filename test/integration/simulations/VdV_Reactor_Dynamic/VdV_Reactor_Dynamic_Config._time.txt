@@ -1,0 +1,2 @@
+Open Time, Sinter Sent Time, Send Time, Run Time, Receive Time, Sinter Recieve Time
+00:00:06.0516662,00:00:00.0076998,00:00:00.1326211,00:01:32.3474912,00:00:00.0371225,00:00:00.0102552
