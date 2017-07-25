@@ -13,13 +13,13 @@ use_setuptools()
 
 from setuptools import setup
 
-_url = "https://svn.acceleratecarboncapture.org"
+_url = "https://github.com/CCSI-Toolset/turb_client"
 from turbine import __version__
 
 setup(
     name="TurbineClient",
     version=__version__,
-    license="See CCSI_TE_LICENSE_turb_client.txt",
+    license="See LICENSE.md",
     packages=['turbine', 'turbine.commands'],
     description="Turbine Science Gateway Client",
     author="Joshua Boverhof",
