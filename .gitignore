@@ -2,3 +2,4 @@
 *.gz
 *.pyc
 *.zip
+turbine/version.py

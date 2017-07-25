@@ -13,7 +13,17 @@
 
 ## Getting Started
 
-TBD
+Clone the repo
+
+    git clone https://github.com/CCSI-Toolset/turb_client.git
+
+Build the distribution
+
+    make
+
+For further instructsion on installation look at [README.txt](README.txt).
+
+
 
 ## Authors
 

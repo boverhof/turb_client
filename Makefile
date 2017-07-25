@@ -3,7 +3,7 @@
 # Joshua R. Boverhof, LBNL
 # See Copyright for copyright notice!
 ###########################################################################
-VERSION := $(shell python -c "import turbine; print '%s' % turbine.__version__")
+VERSION := $(shell git describe --tags --dirty)
 PRODUCT=Turbine Client Scripts
 PROD_SNAME=turb_client
 LICENSE=LICENSE.md

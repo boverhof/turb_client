@@ -8,17 +8,39 @@
 #   $Rev: 10252 $
 #
 ###########################################################################
+import os
+import subprocess
 from ez_setup import use_setuptools
+from setuptools import setup
 use_setuptools()
 
-from setuptools import setup
-
 _url = "https://github.com/CCSI-Toolset/turb_client"
-from turbine import __version__
+# Update version from latest git tags.
+# Create a version file in the root directory
+version_py = os.path.join(os.path.dirname(__file__), 'turbine/version.py')
+try:
+    git_describe = subprocess.check_output(["git", "describe", "--tags","--dirty"]).rstrip().decode('utf-8')
+    version_msg = "# Managed by setup.py via git tags.  **** DO NOT EDIT ****"
+    with open(version_py, 'w') as f:
+        f.write(version_msg + os.linesep + "__version__='" + git_describe.split("-")[0] + "'")
+        f.write(os.linesep + "__release__='" + git_describe + "'" + os.linesep)
+
+except Exception as e:
+    # If there is an exception, this means that git is not available
+    # We will used the existing version.py file
+    pass
+
+try:
+    with open(version_py) as f:
+        code = compile(f.read(), version_py, 'exec')
+        exec(code)
+except:
+    __release__=None
+
 
 setup(
     name="TurbineClient",
-    version=__version__,
+    version=__release__,
     license="See LICENSE.md",
     packages=['turbine', 'turbine.commands'],
     description="Turbine Science Gateway Client",
