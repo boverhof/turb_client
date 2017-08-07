@@ -1,10 +1,7 @@
-include CCSI_TE_LICENSE_turb_client.txt
-include LEGAL
-include LLNL_Notice3.txt
-
+include LICENSE.md
+include README.md
 exclude Makefile
 exclude MANIFEST.in
 exclude jenkins_description.html
-exclude CCSI_TE_LICENSE.txt
 exclude docs/*.docx
 prune test
