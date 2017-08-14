@@ -2,4 +2,6 @@
 *.gz
 *.pyc
 *.zip
+build/
+setup.cfg
 turbine/version.py
