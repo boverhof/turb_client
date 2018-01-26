@@ -12,47 +12,9 @@ If you are installing for multiple users and have root privledges, use this comm
 
     % python setup.py install
 
-But if you are only installing for yourself, or do not have root, try:
+To install for only the current user (no root):
 
     % python setup.py install --user
-
-If you are a developer (that is, you will make changes to turbine) and have root:
-
-    % python setup.py develop
-
-If you are developer and do not have root, this will probably work:
-
-    % python setup.py develop --prefix=~/.local
-
-
-NOTE: For the develop installs you may need to create a directory.  The error below indicates this directory does not exist.  Please create it and try again, or choose a different installation directory (using the -d or --install-dir option).
-
-    [Errno 2] No such file or directory: '$HOME/.local/lib/python2.7/site-packages/test-easy-install-1299.pth'
-
-    The installation directory you specified (via --install-dir, --prefix, or the distutils default setting) was:
-
-    $HOME/.local/lib/python2.7/site-packages
-
-For example, create the directory suggested:
-
-    mkdir -p $HOME/.local/lib/python2.7/site-packages
-
-
-If none of those work, you will have to do the install manually.  First download 
-and install these Python modules.  Instructions for doing so are in the "Dependencies" section.
-
-    dateutil: version == 1.5
-    ntlm: version >= 1.0.1 (Only tested with 1.0.1)
-
-Then set your PYTHONPATH to the current directory.  (This will pick up
-turbine.  If you simply set it on the command line like this, you will need to set
-it again everytime you log in and want to run turbine.)
-
-    % export PYTHONPATH=$PWD:$PYTHONPATH
-
-Finally put the scripts directory in on your PATH.
-
-    % export PATH=$PWD/scripts:$PATH
 
 
 ## Extras
