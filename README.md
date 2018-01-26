@@ -105,15 +105,7 @@ installal manually.  You need root priledges for these procedures.
      username=test1
      password=qwerty
 
-     * Note to utilize 'localhost' you will need to contact 'ccsi-support@acceleratecarboncapture.org' and
-     request credentials.
-
-     * Note Windows authentication via the "python NTLM" you need to include a domain with the username.
-            Examples:
-               .\Administrator
-               MACHINE_NAME\Administrator
-
-     2) Security Section:  Add or Remove the trusted certificate authorities.
+     3) Security Section:  Add or Remove the trusted certificate authorities.
 
      [Security]
      TrustedCertificateAuthorities=cacerts.txt 
@@ -126,7 +118,7 @@ installal manually.  You need root priledges for these procedures.
      in this distribution is the CA for use with 'localhost'.
      -- NOTE: It's a good idea to change the relative path to the absolute file path.
 
-     3) Web Resource Sections:
+     4) Web Resource Sections (example for local deployment):
 
      [Consumer]
      url=https://localhost:8080/Turbine/consumer/
