@@ -63,8 +63,7 @@ If you are developer and do not have root, this will probably work:
     % python setup.py develop --prefix=~/.local
 
 
-NOTE: For the develop installs you may need to create a directory.  If you get an error
-like this:
+NOTE: For the develop installs you may need to create a directory.  The error below indicates this directory does not exist.  Please create it and try again, or choose a different installation directory (using the -d or --install-dir option).
 
     [Errno 2] No such file or directory: '$HOME/.local/lib/python2.7/site-packages/test-easy-install-1299.pth'
 
@@ -72,10 +71,7 @@ like this:
 
     $HOME/.local/lib/python2.7/site-packages
 
-    This directory does not currently exist.  Please create it and try again, or
-    choose a different installation directory (using the -d or --install-dir option).
-
-simply create the directory suggested, like so:
+For example, create the directory suggested:
 
     mkdir -p $HOME/.local/lib/python2.7/site-packages
 
