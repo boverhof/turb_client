@@ -1,7 +1,7 @@
 ##########################################################################
 # $Id: excel_test_suite.py 4711 2014-02-12 23:31:24Z boverhof $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: boverhof $
 #   $Date: 2014-02-12 15:31:24 -0800 (Wed, 12 Feb 2014) $

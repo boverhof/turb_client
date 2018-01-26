@@ -4,7 +4,7 @@ outputJSON2inputJSON.py
 
 Takes a set of JSON result from the server and turns it back into an input set for resubmission.  (Handy for testing purposes)
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 
 import sys,os

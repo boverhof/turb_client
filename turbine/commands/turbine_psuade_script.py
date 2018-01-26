@@ -1,7 +1,7 @@
 ##########################################################################
 # $Id: turbine_psuade_script.py 6275 2014-09-12 16:47:57Z leek2 $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: leek2 $
 #   $Date: 2014-09-12 09:47:57 -0700 (Fri, 12 Sep 2014) $

@@ -2,7 +2,7 @@
 """
 turbine_session_list
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 from turbine.commands import turbine_session_script
 import sys,os

@@ -2,7 +2,7 @@
 """
 turbine_mongo_archiver
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 from turbine.commands import turbine_mongo_archiver
 turbine_mongo_archiver.main()

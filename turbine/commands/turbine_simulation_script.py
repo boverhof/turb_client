@@ -2,7 +2,7 @@
 ##########################################################################
 # $Id: turbine_simulation_script.py 10089 2016-02-29 19:46:07Z aaelbashandy $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: aaelbashandy $
 #   $Date: 2016-02-29 11:46:07 -0800 (Mon, 29 Feb 2016) $

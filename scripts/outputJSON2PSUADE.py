@@ -2,7 +2,7 @@
 """
 JSON2Psuade
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 import sys, time, os
 #from run_turbine import *
