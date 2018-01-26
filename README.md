@@ -28,8 +28,7 @@ For further instructsion on installation look at [README.txt](README.txt).
 ## Authors
 
 * Josh Boverhof
-
-See also the list of [contributors](https://github.com/CCSI-Toolset/turb_client/contributors) who participated in this project.
+* See also the list of [contributors](https://github.com/CCSI-Toolset/turb_client/contributors) who participated in this project.
 
 ## Versioning
 
@@ -49,56 +48,53 @@ report any failures to Jim Leek leek2@llnl.gov
 
 If you are installing for multiple users and have root privledges, use this command:
 
-% python setup.py install
+    % python setup.py install
 
 But if you are only installing for yourself, or do not have root, try:
 
-% python setup.py install --user
+    % python setup.py install --user
 
 If you are a developer (that is, you will make changes to turbine) and have root:
 
-% python setup.py develop
+    % python setup.py develop
 
 If you are developer and do not have root, this will probably work:
 
-% python setup.py develop --prefix=~/.local
+    % python setup.py develop --prefix=~/.local
 
 
 NOTE: For the develop installs you may need to create a directory.  If you get an error
-like this (inside the quotes):
-"""""""""""""""""""""""""""""""""""
-[Errno 2] No such file or directory: '$HOME/.local/lib/python2.7/site-packages/test-easy-install-1299.pth'
+like this:
 
-The installation directory you specified (via --install-dir, --prefix, or
-the distutils default setting) was:
+    [Errno 2] No such file or directory: '$HOME/.local/lib/python2.7/site-packages/test-easy-install-1299.pth'
+
+    The installation directory you specified (via --install-dir, --prefix, or the distutils default setting) was:
 
     $HOME/.local/lib/python2.7/site-packages
 
-This directory does not currently exist.  Please create it and try again, or
-choose a different installation directory (using the -d or --install-dir
-option).
-"""""""""""""""""""""""""""""""""""
+    This directory does not currently exist.  Please create it and try again, or
+    choose a different installation directory (using the -d or --install-dir option).
 
 simply create the directory suggested, like so:
-mkdir -p $HOME/.local/lib/python2.7/site-packages
+
+    mkdir -p $HOME/.local/lib/python2.7/site-packages
 
 
 If none of those work, you will have to do the install manually.  First download 
-and install these Python modules.  Instructions for doing so are in the 
-"Dependencies" section.
+and install these Python modules.  Instructions for doing so are in the "Dependencies" section.
 
-dateutil: version == 1.5
-ntlm: version >= 1.0.1 (Only tested with 1.0.1)
+    dateutil: version == 1.5
+    ntlm: version >= 1.0.1 (Only tested with 1.0.1)
 
 Then set your PYTHONPATH to the current directory.  (This will pick up
 turbine.  If you simply set it on the command line like this, you will need to set
 it again everytime you log in and want to run turbine.)
 
-% export PYTHONPATH=$PWD:$PYTHONPATH
+    % export PYTHONPATH=$PWD:$PYTHONPATH
 
 Finally put the scripts directory in on your PATH.
 
-% export PATH=$PWD/scripts:$PATH
+    % export PATH=$PWD/scripts:$PATH
 
 
 ## Extras
