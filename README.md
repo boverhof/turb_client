@@ -1,5 +1,12 @@
 # turb_client
-Python package and utility scripts for communicating with the Turbine Science Gateway Web API, consisting of five Web JSON RESTful interfaces for Application, Session, Job, Consumer, and Simulation. 
+Python package and utility scripts for communicating with the Turbine Science Gateway Web API, consisting of five Web JSON RESTful interfaces for Application, Session, Job, Simulation, and Consumer.
+
+## List of Web Resources
+*  Application:  The applications available on the Gateway, this should be a subset of foqus, AspenPlus/ACM, gPROMS, Excel.
+*  Simulation:  In a "simulation" description the application is specified (eg. foqus), a set of staged input files are provided and a list of expected staged output files.  A "simulation" description must specify one of the application from above.
+*  Job: A unit of work, which specifies a simulation, and potentially several input parameters.
+*  Session:   A session is a group of jobs that can be submitted, executed, and monitored together.
+*  Consumer:  The consumer resource provides descriptions of all the workers available to process job requests.
 
 ## Installation
 
