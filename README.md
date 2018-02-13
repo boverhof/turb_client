@@ -1,3 +1,5 @@
+[![Build Status](https://keeling.lbl.gov:8080/buildStatus/icon?job=turb_client)](https://keeling.lbl.gov:8080/job/turb_client/)
+
 # turb_client
 Python package and utility scripts for communicating with the Turbine Science Gateway Web API, consisting of five Web JSON RESTful interfaces for Application, Session, Job, Simulation, and Consumer.
 
