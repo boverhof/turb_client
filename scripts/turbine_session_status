@@ -2,7 +2,7 @@
 """
 turbine_job_script
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 import sys
 import logging as _log

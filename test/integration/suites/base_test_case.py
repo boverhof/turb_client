@@ -1,7 +1,7 @@
 ##########################################################################
 # $Id: base_test_case.py 8633 2015-07-16 15:47:11Z boverhof $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: boverhof $
 #   $Date: 2015-07-16 08:47:11 -0700 (Thu, 16 Jul 2015) $

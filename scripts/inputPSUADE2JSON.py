@@ -2,7 +2,7 @@
 """
 psuade2JSON
 
-See Copyright for copyright notice!
+See LICENSE.md for copyright notice!
 """
 
 import sys,os

@@ -2,7 +2,7 @@
 ##########################################################################
 # $Id: turbine_job_script.py 6627 2014-10-09 23:00:13Z aaelbashandy $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: aaelbashandy $
 #   $Date: 2014-10-09 16:00:13 -0700 (Thu, 09 Oct 2014) $

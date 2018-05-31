@@ -1,7 +1,7 @@
 ##########################################################################
 # $Id: aspenplus_test_suite.py 4744 2014-02-19 18:03:08Z boverhof $
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: boverhof $
 #   $Date: 2014-02-19 10:03:08 -0800 (Wed, 19 Feb 2014) $

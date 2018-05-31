@@ -1,5 +1,5 @@
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 #
 #   $Author: ksb $
 #   $Date: 2016-04-27 14:26:30 -0700 (Wed, 27 Apr 2016) $

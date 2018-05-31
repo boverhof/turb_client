@@ -1,7 +1,7 @@
 # A simple makefile for creating the Turbine Client distribution file
 ##########################################################################
 # Joshua R. Boverhof, LBNL
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 ###########################################################################
 VERSION := $(shell git describe --tags --dirty)
 PRODUCT=Turbine Client Scripts

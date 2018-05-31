@@ -1,7 +1,7 @@
 ##########################################################################
 # $Id: rpython.py 4480 2013-12-20 23:20:21Z boverhof $
 # Dan Gunter <dkgunter@lbl.gov>
-# See Copyright for copyright notice!
+# See LICENSE.md for copyright notice!
 # 
 #   $Author: boverhof $
 #   $Date: 2013-12-20 15:20:21 -0800 (Fri, 20 Dec 2013) $
