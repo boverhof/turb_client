@@ -3,7 +3,7 @@
 # $Id: __init__.py 10089 2016-02-29 19:46:07Z aaelbashandy $
 # Joshua R. Boverhof, LBNL
 # See Copyright for copyright notice!
-# 
+#
 #   $Author: aaelbashandy $
 #   $Date: 2016-02-29 11:46:07 -0800 (Mon, 29 Feb 2016) $
 #   $Rev: 10089 $
@@ -40,14 +40,14 @@ def handler_http_error(func):
 
 def _print_page(page, out=sys.stdout):
     print >>out, page
-    
-def _print_numbered_lines(data, out=sys.stdout): 
+
+def _print_numbered_lines(data, out=sys.stdout):
     for i in xrange(len(data)):
         print >>out, '%d) %s' %(i,data[i])
-        
+
 def _print_as_json(data, out=sys.stdout):
     print >>out, json.dumps(data)
-               
+
 """ Internal methods
 """
 
@@ -119,26 +119,26 @@ def _setup_logging(cp):
     l = _log.getLogger(__name__)
     l.debug('Setup Logging Done')
     _setup_logging.done = True
-    
-    
+
+
 class MyHTTPNtlmAuthHandler(HTTPNtlmAuthHandler.HTTPNtlmAuthHandler):
-    
+
     def http_error_401(self, req, fp, code, msg, headers):
         response = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler.http_error_401(self, req, fp, code, msg, headers)
-        # NOTE: problem with how 401 errors are retried, don't utilize the 'chain' 
+        # NOTE: problem with how 401 errors are retried, don't utilize the 'chain'
         handler = urllib2.HTTPErrorProcessor()
         handler.parent = self.parent
         tmp = handler.http_response(req, response)
         if tmp:
             return tmp
         return response
-    
+
 class TurbineHTTPDefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, hdrs):
         msg += '\n%s' %fp.read()
         raise urllib2.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
-    
-    
+
+
 class _HTTPSConnection(httplib.HTTPSConnection):
     """ Verify the server certificate with trusted CA certificates
     """
@@ -149,22 +149,22 @@ class _HTTPSConnection(httplib.HTTPSConnection):
         section = 'Security'
         option = 'TrustedCertificateAuthorities'
         if not cp.has_option(section, option):
-            _log.getLogger(__name__).debug('No Configuration ["%s","%s"]: Verify Off' 
+            _log.getLogger(__name__).debug('No Configuration ["%s","%s"]: Verify Off'
                                            %(section,option))
             return
         cls.ca_certs = cp.get(section, option)
         if cls.ca_certs is None:
-            _log.getLogger(__name__).debug('Configuration ["%s","%s"] is None: Verify Off' 
+            _log.getLogger(__name__).debug('Configuration ["%s","%s"] is None: Verify Off'
                                            %(section,option))
         elif not os.path.isfile(cls.ca_certs):
-            _log.getLogger(__name__).error('Configuration ["%s","%s"] value must be a file' 
+            _log.getLogger(__name__).error('Configuration ["%s","%s"] value must be a file'
                                            %(section,option))
             sys.exit(1)
-        else:     
+        else:
             _log.getLogger(__name__).debug('Configuration ["%s","%s"] verify server certificate'
                                            %(section,option))
             cls.cert_reqs = ssl.CERT_REQUIRED
-             
+
     def connect(self):
         sock = socket.create_connection((self.host, self.port), self.timeout)
         if getattr(self, '_tunnel_host', None) is not None:
@@ -175,8 +175,8 @@ class _HTTPSConnection(httplib.HTTPSConnection):
                                     self.cert_file,
                                     cert_reqs=_HTTPSConnection.cert_reqs,
                                     ca_certs=_HTTPSConnection.ca_certs)
-        
-    
+
+
 class _VerifyServer_HTTPSHandler(urllib2.HTTPSHandler):
     """ server certificate verification, must subclass HTTPSConnection to override
     """
@@ -185,8 +185,33 @@ class _VerifyServer_HTTPSHandler(urllib2.HTTPSHandler):
         return self.do_open(_HTTPSConnection, req)
 
     https_request = urllib2.AbstractHTTPHandler.do_request_
-    
-            
+
+class _AmazonRemappedHTTPBasicAuthHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+
+    auth_header = 'Authorization'
+
+    def http_error_401(self, req, fp, code, msg, headers):
+        url = req.get_full_url()
+        response = self.http_error_auth_reqed('x-amzn-Remapped-WWW-Authenticate',
+                                              url, req, headers)
+        return response
+
+class _AmazonHTTPBasicCustomAuthHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+    """ No www-authenticate header is included when "Authorized" Header is missing
+    from request never invoke API Gateway Custom Authorizer.
+    """
+    auth_header = 'Authorization'
+
+    def http_error_401(self, req, fp, code, msg, headers):
+        url = req.get_full_url()
+        realm = "FOQUS"
+        #response = self.http_error_auth_reqed('x-amzn-Remapped-WWW-Authenticate',
+        #                                      url, req, headers)
+        #return response
+        host = url
+        return self.retry_http_basic_auth(host, req, realm)
+
+
 def _setup(cp, url, realm=None):
     """_setup initializes the password manager and logging configuration.  Must call this
     function before logging.   Initializes server certificate verification.
@@ -194,9 +219,9 @@ def _setup(cp, url, realm=None):
     global _opener
     assert isinstance(cp, ConfigParser)
     _setup_logging(cp)
-    
+
     if _setup.passman is None:
-        _setup.passman = urllib2.HTTPPasswordMgrWithDefaultRealm() 
+        _setup.passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
     elif _setup.passman.find_user_password(realm, url) != (None,None):
         _log.getLogger(__name__).debug('passman "%s" password already registered' %url)
         return
@@ -210,33 +235,41 @@ def _setup(cp, url, realm=None):
     #    sys.exit('HTTPS: Requires HTTP Basic Authentication, Provide both username and password')
     #if url.startswith('http://') and username and password:
     #    sys.exit('HTTP:  HTTP Basic Authentication requires HTTPS to be secure')
-    
+
     #if not username or not password:
     #    sys.exit('Provide both username and password')
-	
-    passman = _setup.passman 
+
+    passman = _setup.passman
 
     _log.getLogger(__name__).debug('%s', username)
-    passman.add_password(realm, url, username, password) 
+    passman.add_password(realm, url, username, password)
 
-    if _opener is not None: 
+    if _opener is not None:
         return
 
-    authhandler = urllib2.HTTPBasicAuthHandler(passman) 
-    auth_NTLM = MyHTTPNtlmAuthHandler(passman)
-    
+    authhandler = urllib2.HTTPBasicAuthHandler(passman)
+    #auth_NTLM = MyHTTPNtlmAuthHandler(passman)
+
     handlers = [urllib2.ProxyHandler, urllib2.UnknownHandler, urllib2.HTTPHandler,
                 TurbineHTTPDefaultErrorHandler, urllib2.HTTPRedirectHandler,
-                urllib2.FTPHandler, urllib2.FileHandler, 
+                urllib2.FTPHandler, urllib2.FileHandler,
                 urllib2.HTTPErrorProcessor]
 
     if url.startswith('https'):
         handlers.append(_VerifyServer_HTTPSHandler)
         _HTTPSConnection.setup_verify(cp)
         handlers.append(authhandler)
-        handlers.append(auth_NTLM)
+        #handlers.append(auth_NTLM)
+    elif username and password:
+        handlers.append(authhandler)
 
-    _opener = urllib2.build_opener(*handlers)  
+    # Amazon Remapped x-amzn-Remapped-WWW-Authenticate
+    #handlers.append(_AmazonRemappedHTTPBasicAuthHandler(passman))
+
+    handlers.append(_AmazonHTTPBasicCustomAuthHandler(passman))
+
+
+    _opener = urllib2.build_opener(*handlers)
     urllib2.install_opener(_opener)
     return cp
 _setup.passman = None
@@ -256,25 +289,25 @@ def add_options(op):
     op.add_option("-r", "--rpp", type="int",
                   action="store", dest="rpp", default=1000,
                   help="results per page")
-    op.add_option("-v", "--verbose", 
+    op.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
                   help="verbose output")
 
 def add_session_option(op):
-    op.add_option("-s", "--session", 
+    op.add_option("-s", "--session",
                   action="store", dest="session", default=None,
                   help="session identifier (guid)")
 
 def add_json_option(op):
     """
     """
-    op.add_option("-j", "--json", 
+    op.add_option("-j", "--json",
                   action="store_true", dest="json", default=False,
                   help="print results as json to stdout")
 
 
 def delete_page(configFile, section, **kw):
-    """ HTTP DELETE 
+    """ HTTP DELETE
     """
     url = configFile.get(section, 'url')
     _setup(configFile, url)
@@ -297,7 +330,7 @@ def put_page(configFile, section, data, **kw):
 def _put_page_by_url(url, configFile, section, data, content_type='application/octet-stream', **kw):
     """
     data -- data to PUT
-    """    
+    """
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
@@ -314,7 +347,7 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.__dict__))
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.readline()))
         raise
-         
+
     _log.getLogger(__name__).debug("RESPONSE HTTP CODE: %s" %d.code)
     return d.read()
 
@@ -374,7 +407,7 @@ def standardizeOptions(url, options, **extra_query):
 
 def get_paging_by_url(url, configFile, section, query):
     """ If page>0, returns a list with a single string representing the response
-    If page=0, gets all contents by automatically paging and 
+    If page=0, gets all contents by automatically paging and
     returns a list of strings representing all the queries
     """
     _setup(configFile, url)
@@ -388,14 +421,14 @@ def get_paging_by_url(url, configFile, section, query):
         #query["page"] == 1 is just to get us past the first iteration
         #if we got fewer than the requested results per page, we must have run out all the results
         isNext = False
-        while query["page"] == 1 or isNext: 
+        while query["page"] == 1 or isNext:
             page_url = _make_url(url, **query)
             _log.getLogger(__name__).debug('retrieving job metadata: %s', page_url)
             thisResults = _do_get(page_url)
             allResults.append(thisResults)
             query["page"] += 1
             isNext = len(thisResults) > 4096  #Fix, how do I actually tell when I have all the data?
-            
+
     elif query["page"] >= 1:
         page_url = _make_url(url, **query)
         _log.getLogger(__name__).debug('retrieving job metadata: %s', page_url)
@@ -419,5 +452,3 @@ def load_pages_json(pages):
     for l in pages:
         data += json.loads(l)
     return data
-
-
