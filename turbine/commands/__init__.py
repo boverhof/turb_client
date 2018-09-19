@@ -95,11 +95,12 @@ def _urlopen(url, data=None):
     return result
 
 def _do_get(url):
-    #_log.getLogger(__name__).debug('GET: %s', url)
     d = _urlopen(url)
     g = d.geturl()
-    _log.getLogger(__name__).debug('HTTP GET(%d) %s: %s', d.getcode(),d.msg, g)
-    return d.read()
+    _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', d.getcode(),d.msg, g)
+    content = d.read()
+    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return content
 
 
 def _setup_logging(cp):
@@ -339,8 +340,6 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     request.add_header('Content-Type', content_type)
 
     request.get_method = lambda: 'PUT'
-    _log.getLogger(__name__).debug("Content-Type: %s", content_type)
-    _log.getLogger(__name__).debug("PUT: %s", url)
     try:
         d = _opener.open(request)
     except urllib2.HTTPError, ex:
@@ -348,8 +347,12 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.readline()))
         raise
 
-    _log.getLogger(__name__).debug("RESPONSE HTTP CODE: %s" %d.code)
-    return d.read()
+    _log.getLogger(__name__).info("HTTP PUT(%d): %s", d.code, url)
+    _log.getLogger(__name__).debug("Content-Type: %s", content_type)
+    _log.getLogger(__name__).debug("BODY:\n%s", data)
+    content = d.read()
+    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return content
 
 def post_page_by_url(url, configFile, section, data, **kw):
     """
@@ -359,10 +362,12 @@ def post_page_by_url(url, configFile, section, data, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    _log.getLogger(__name__).debug("POST: %s", url)
     d = _urlopen(url, data)
-    _log.getLogger(__name__).debug("RESPONSE HTTP CODE: %s" %d.code)
-    return d.read()
+    _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
+    _log.getLogger(__name__).debug("BODY:\n%s", data)
+    content = d.read()
+    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return content
 
 def post_page(configFile, section, data, **kw):
     """
