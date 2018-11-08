@@ -2,7 +2,7 @@
 # $Id: setup.py 10252 2016-04-27 21:26:30Z ksb $
 # Joshua R. Boverhof, LBNL
 # See LICENSE.md for copyright notice!
-# 
+#
 #   $Author: ksb $
 #   $Date: 2016-04-27 14:26:30 -0700 (Wed, 27 Apr 2016) $
 #   $Rev: 10252 $
@@ -10,9 +10,9 @@
 ###########################################################################
 import os
 import subprocess
-from ez_setup import use_setuptools
+#from ez_setup import use_setuptools
 from setuptools import setup
-use_setuptools()
+#use_setuptools()
 
 _url = "https://github.com/CCSI-Toolset/turb_client"
 # Update version from latest git tags.
@@ -64,13 +64,13 @@ setup(
         "Operating System :: POSIX"
     ],
 
-    scripts = ["scripts/turbine_job_script", 
-        "scripts/turbine_application_list", 
-        "scripts/turbine_simulation_list", 
-        "scripts/turbine_simulation_update", 
-        "scripts/turbine_simulation_create", 
-        "scripts/turbine_simulation_delete", 
-        "scripts/turbine_simulation_get", 
+    scripts = ["scripts/turbine_job_script",
+        "scripts/turbine_application_list",
+        "scripts/turbine_simulation_list",
+        "scripts/turbine_simulation_update",
+        "scripts/turbine_simulation_create",
+        "scripts/turbine_simulation_delete",
+        "scripts/turbine_simulation_get",
         "scripts/turbine_session_list",
         "scripts/turbine_session_create",
         "scripts/turbine_session_append",
@@ -87,10 +87,10 @@ setup(
     ],
     install_requires=[
         "python-dateutil >= 1.5",
-        "python-ntlm >= 1.0.1",
+        "python-ntlm3",
     ],
-    extras_require={ 
-        "graphs":["rpy2",], 
+    extras_require={
+        "graphs":["rpy2",],
     },
 
     # sdist
