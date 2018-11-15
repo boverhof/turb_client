@@ -9,7 +9,7 @@
 #   $Rev: 10089 $
 #
 ###########################################################################
-import urllib3,csv,sys,os,ssl,httplib,socket
+import urllib3,csv,sys,os,ssl,http.client,socket
 import json
 import optparse
 import sys
@@ -140,7 +140,7 @@ class TurbineHTTPDefaultErrorHandler(urllib3.HTTPDefaultErrorHandler):
         raise urllib3.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
 
 
-class _HTTPSConnection(httplib.HTTPSConnection):
+class _HTTPSConnection(http.client.HTTPSConnection):
     """ Verify the server certificate with trusted CA certificates
     """
     ca_certs = None
