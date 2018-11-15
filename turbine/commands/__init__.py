@@ -17,7 +17,7 @@ from configparser import ConfigParser
 import logging as _log
 import logging.config as _loggingconfig
 from turbine.utility import states
-from ntlm import HTTPNtlmAuthHandler
+from ntlm3 import HTTPNtlmAuthHandler
 
 
 _opener = None
