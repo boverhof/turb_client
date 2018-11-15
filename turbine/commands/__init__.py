@@ -134,10 +134,10 @@ class MyHTTPNtlmAuthHandler(HTTPNtlmAuthHandler.HTTPNtlmAuthHandler):
             return tmp
         return response
 
-class TurbineHTTPDefaultErrorHandler(urllib.error.HTTPDefaultErrorHandler):
+class TurbineHTTPDefaultErrorHandler(urllib.request.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, hdrs):
         msg += '\n%s' %fp.read()
-        raise urllib.error.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
+        raise urllib.request.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
 
 
 class _HTTPSConnection(http.client.HTTPSConnection):
