@@ -8,7 +8,7 @@
 #   $Rev: 4744 $
 #
 ###########################################################################
-import unittest, uuid, urllib2, os, time, json, tempfile, logging
+import unittest, uuid, urllib3, os, time, json, tempfile, logging
 from base_test_case import BaseIntegrationTestCase,_CreateSimulationTest
 from turbine.commands import turbine_session_script as tss
 from turbine.commands import turbine_simulation_script as tsim

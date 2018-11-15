@@ -11,7 +11,7 @@
 ###########################################################################
 import json, optparse,sys
 import time, dateutil.parser, datetime
-from urllib2 import HTTPError
+from urllib3 import HTTPError
 from turbine.commands import add_options, post_page, put_page, \
     get_page, get_page_by_url, get_paging, _open_config, load_pages_json, \
     _print_page, _print_numbered_lines, add_json_option, _print_as_json

@@ -9,7 +9,7 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import urllib2,csv,sys,os
+import urllib3,csv,sys,os
 from ConfigParser import ConfigParser
 import json
 import optparse
