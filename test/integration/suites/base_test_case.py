@@ -8,7 +8,7 @@
 #   $Rev: 8633 $
 #
 ###########################################################################
-import unittest, uuid, urllib3, os, time, json, tempfile, logging
+import unittest, uuid, urllib.request,urllib.error, os, time, json, tempfile, logging
 import configparser as _CP
 from turbine.commands import _open_config, _setup_logging
 from turbine.commands import turbine_simulation_script as tsim
@@ -90,7 +90,7 @@ class _CreateSimulationTest(BaseIntegrationTestCase):
         log.debug("setUp:   simulation '%s'" %simulation)
         try:
             data = tsim.main_get([simulation, self.config_name], func=None)
-        except urllib3.HTTPError:
+        except urllib.error.HTTPError:
             #self.create_test_simulation()
             log.debug("create simulation '%s'" %simulation)
             name = self.simulation_name

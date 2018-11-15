@@ -9,7 +9,7 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import urllib3,csv,sys,os
+import urllib.request,urllib.error,csv,sys,os
 from configparser import ConfigParser
 import json
 import optparse

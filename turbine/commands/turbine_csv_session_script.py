@@ -9,7 +9,7 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import urllib3,csv,sys,os, shutil
+import urllib.request,urllib.error,csv,sys,os, shutil
 import json
 import optparse
 import sys, os

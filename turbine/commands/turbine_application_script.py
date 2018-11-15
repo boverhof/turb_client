@@ -9,10 +9,10 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import urllib3,csv,sys,os,json
+import urllib.request,urllib.error,csv,sys,os,json
 import logging as _log
 import optparse
-from urllib3 import HTTPError
+from urllib.error import HTTPError
 from turbine.commands import add_options, add_json_option, get_page, get_paging, _print_as_json, put_page, post_page,\
     _open_config, load_pages_json
 

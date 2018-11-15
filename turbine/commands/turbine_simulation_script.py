@@ -9,10 +9,10 @@
 #   $Rev: 10089 $
 #
 ###########################################################################
-import urllib3,csv,sys,os,json,uuid
+import urllib.request,urllib.error,csv,sys,os,json,uuid
 import logging as _log
 import optparse
-from urllib3 import HTTPError
+from urllib.error import HTTPError
 from turbine.commands import add_options, add_json_option, get_page, get_paging, put_page, post_page,\
     _open_config, load_pages_json, delete_page, _print_page
 
@@ -126,7 +126,7 @@ def main_update(args=None):
         else: 
            _log.debug("".join(ex.read()))
         raise
-    except urllib3.URLError as ex:
+    except urllib.error.URLError as ex:
         _log.error("URLError :  %s", ex.reason)
         raise
                          

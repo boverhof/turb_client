@@ -12,7 +12,7 @@
 import sys, json, optparse, glob, uuid, os, time
 import time, dateutil.parser, datetime
 import logging as _log
-from urllib3 import HTTPError
+from urllib.error import HTTPError
 from turbine.commands import add_options, add_json_option, delete_page, post_page, \
     get_page, get_paging, get_paging_by_url, _open_config, getFromConfigWithDefaults, \
     _print_page, _print_numbered_lines, _print_as_json, load_pages_json
