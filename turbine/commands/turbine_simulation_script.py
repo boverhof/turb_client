@@ -74,7 +74,7 @@ def main_create(args=None):
 
     try:
         data = put_page(cp, SECTION, data, content_type='application/json', **kw)
-    except HTTPError, ex:
+    except HTTPError as ex:
         _log.error(ex)
         if hasattr(ex, 'readlines'):
             _log.error("".join(ex.readlines()))
@@ -119,14 +119,14 @@ def main_update(args=None):
     contents = open(file_name, 'rb').read()
     try:
         data = put_page(configFile, SECTION, contents, **kw)
-    except HTTPError, ex:
+    except HTTPError as ex:
         _log.error("HTTP Code %d :  %s", ex.code, ex.msg)
         if hasattr(ex, 'readlines'): 
             _log.debug("".join(ex.readlines()))
         else: 
            _log.debug("".join(ex.read()))
         raise
-    except urllib2.URLError, ex:
+    except urllib2.URLError as ex:
         _log.error("URLError :  %s", ex.reason)
         raise
                          
@@ -214,14 +214,14 @@ def main_delete(args=None, func=_print_page):
     simulationName = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     log = _log.getLogger(__name__)
    
     try: 
         page = delete_page(configFile, SECTION, subresource='%s' %simulationName)
-    except HTTPError, ex:
+    except HTTPError as ex:
         log.error(ex)
         log.error(ex.readlines())
         raise

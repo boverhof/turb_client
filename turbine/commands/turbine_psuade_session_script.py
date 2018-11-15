@@ -32,20 +32,20 @@ def psuade_launch(configFile, psuadeInFilename):
 
     #create the session
     sessionid = create_session(configFile)
-    print sessionid
+    print (sessionid)
 
     #create all the jobs in the session
     batches = len(inputsJson) / 500
     if(len(inputsJson) % 500 > 0):
         batches += 1
 
-    print "Num batches: ", batches
+    print ("Num batches: ", batches)
 
     for ii in range(0,batches):
       start = (ii)*500
       end = ((ii+1)*500)
       tmparray = inputsJson[(ii)*500:((ii+1)*500)]
-      print "batch:", ii, " start:", start, " end:", end, " size: ", tmparray.__len__()
+      print ("batch:", ii, " start:", start, " end:", end, " size: ", tmparray.__len__())
       createJobsResult = create_jobs(configFile, sessionid, tmparray)
       submitJobsResult = start_jobs(configFile, sessionid)
 
@@ -87,10 +87,10 @@ def main_psuade_launch(args=None):
        not configFile.has_option(SECTION, "url") or
        configFile.get(SECTION, "url") == ""):
        #Local Psuade based run
-       print local_launch(configFile, psuadeInFilename)
+       print (local_launch(configFile, psuadeInFilename))
     else:
       #Gateway run
-      print psuade_launch(configFile, psuadeInFilename)
+      print (psuade_launch(configFile, psuadeInFilename))
 
 
 def write_jobs_to_psuade(configFile, sessionid, psuadeInFilename, psuadeOutFilename, options):
@@ -128,7 +128,7 @@ def main_write_jobs_to_psuade(args=None):
       #Gateway run
       write_jobs_to_psuade(configFile, sessionid, psuadeInFilename, psuadeOutFilename, options)
 
-    print "Jobs written to", args[2]
+    print ("Jobs written to", args[2])
 
 
 def main_do_psuade(args=None):
@@ -153,17 +153,17 @@ def main_do_psuade(args=None):
     if(sessionid == None):
       sessionid = psuade_launch(configFile, psuadeInFilename)
 
-    print "SessionID:", sessionid
+    print ("SessionID:", sessionid)
     #loop checking that the jobs haven't finished yet
     jobsLeft = 1
     while(jobsLeft > 0):    
       jobsLeft = jobs_unfinished(configFile, sessionid)       
-      print jobsLeft
+      print (jobsLeft)
       if(jobsLeft > 0): time.sleep(jobsLeft*5)
 
     #Now that the jobs are complete, get them all
     write_jobs_to_psuade(configFile, sessionid, psuadeInFilename, psuadeOutFilename)
-    print "Jobs written to", psuadeOutFilename
+    print ("Jobs written to", psuadeOutFilename)
 
 
 def local_unfinished(configFile, psuadeInFilename):
@@ -250,7 +250,7 @@ def main_psuade_jobs_unfinished(args=None):
         numunfinished = 0
 
     print
-    print "{unfinished:", numunfinished, "}"
+    print ("{unfinished:", numunfinished, "}")
     
 
 
@@ -275,10 +275,10 @@ def main_psuade_stop_jobs(args=None):
     if(not configFile.has_section(SECTION) or
        not configFile.has_option(SECTION, "url")):
        #Local Psuade based run
-       print local_stop_jobs(configFile)
+       print (local_stop_jobs(configFile))
     else:
       #Gateway run
-      print stop_jobs(configFile, sessionid)
+      print (stop_jobs(configFile, sessionid))
 
 
 

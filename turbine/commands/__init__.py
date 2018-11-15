@@ -29,7 +29,7 @@ def handler_http_error(func):
     def _exit_on_http_error(*args, **kw):
         try:
             r = func(*args, **kw)
-        except urllib2.HTTPError,ex:
+        except urllib2.HTTPError as ex:
             log.error("%s" %ex)
             if getattr(ex, 'read', None):
                 log.error("%s" %ex.read())
@@ -60,7 +60,7 @@ def _open_config(filename=None):
         filename = os.environ.get("TURBINE_CONFIG")
 
     if filename is None:
-        raise RuntimeError, "Provide Configuration as command-line argument or using environment variable 'TURBINE_CONFIG'"
+        raise RuntimeError("Provide Configuration as command-line argument or using environment variable 'TURBINE_CONFIG'")
     cp = ConfigParser();
     cp.optionxform = str
     cp.read(filename)
@@ -111,7 +111,7 @@ def _setup_logging(cp):
     try:
         fileConfig = cp.get('Logging', 'fileConfig')
         _loggingconfig.fileConfig(fileConfig)
-    except Exception,ex:
+    except Exception as ex:
         _log.basicConfig(\
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             level=_log.ERROR
@@ -342,7 +342,7 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     request.get_method = lambda: 'PUT'
     try:
         d = _opener.open(request)
-    except urllib2.HTTPError, ex:
+    except urllib2.HTTPError as ex:
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.__dict__))
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.readline()))
         raise

@@ -80,9 +80,9 @@ def main(args=None, func=_print_as_json):
     
     try:
         pages = get_paging(configFile, SECTION, options, **query)
-    except HTTPError, ex:
-        print ex
-        print ex.readlines()
+    except HTTPError as ex:
+        print (ex)
+        print (ex.readlines())
         return
 
     #states = set(['submit', 'create', 'setup', 'running', 'success', 'warning', 'error', 'expired', 'cancel', 'terminate'])
@@ -93,18 +93,18 @@ def main(args=None, func=_print_as_json):
         states = states.union(fstates)
 
     if options.basic:
-        print "Total JOBS: %d" %len(all)
+        print ("Total JOBS: %d" %len(all))
         for state in states:
             if options.state is not None and options.state != state: continue
             flist = filter(lambda e: e['State'] == state, all)
-            print "\t%s JOBS: %d" %(state.upper(), len(flist))
+            print ("\t%s JOBS: %d" %(state.upper(), len(flist)))
             if options.verbose:
                 for i in flist:
                     print
                     for k,v in i.items():
-                        print "\t%12s -- %s" %(k,v)
+                        print ("\t%12s -- %s" %(k,v))
             else:
-                print "\t%s" %map(lambda m: m['Id'], flist)
+                print ("\t%s" %map(lambda m: m['Id'], flist))
     elif func is not None and callable(func):
         _print_as_json(all)
 

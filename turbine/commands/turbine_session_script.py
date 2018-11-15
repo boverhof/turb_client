@@ -33,7 +33,7 @@ def main_list(args=None, func=_print_numbered_lines):
     (options, args) = op.parse_args(args)
     try:
         configFile = _open_config(*args)
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     if options.json:
@@ -69,7 +69,7 @@ def main_jobs_status(args=None, func=_print_as_json):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     data = jobs_status(configFile, sessionid)
@@ -92,7 +92,7 @@ def main_create_session(args=None, func=_print_page):
         
     try:
         configFile = _open_config(*args)
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     page = create_session(configFile)
@@ -121,7 +121,7 @@ def main_create_jobs(args=None, func=_print_page):
     jobs_file = args[1]
     try:
         configFile = _open_config(*args[2:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     log = _log.getLogger(__name__)
@@ -136,7 +136,7 @@ def main_create_jobs(args=None, func=_print_page):
 
     try:
         page = create_jobs(configFile, sessionid, input_data)
-    except HTTPError, ex:
+    except HTTPError as ex:
         log.error(ex)
         log.error(ex.fp.read())
         raise
@@ -162,10 +162,10 @@ def main_stop_jobs(args=None):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
-    print stop_jobs(configFile, sessionid)
+    print (stop_jobs(configFile, sessionid))
 
 
 def main_delete(args=None, func=_print_page):
@@ -181,14 +181,14 @@ def main_delete(args=None, func=_print_page):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     log = _log.getLogger(__name__)
    
     try: 
         page = delete_page(configFile, SECTION, subresource='%s' %sessionid)
-    except HTTPError, ex:
+    except HTTPError as ex:
         log.error(ex)
         log.error(ex.readlines())
         raise
@@ -212,7 +212,7 @@ def main_kill_jobs(args=None, func=_print_page):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
         
     page = kill_jobs(configFile, sessionid)
@@ -239,7 +239,7 @@ def main_start_jobs(args=None, func=_print_page):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     _log.getLogger(__name__).debug("main_start_jobs")
@@ -265,7 +265,7 @@ def get_results(cp, sessionid, options):
     query['verbose'] = verbose
     query['rpp'] = str(rpp) 
     query['page'] = pagenum 
-    print query
+    print (query)
     
     pages = []
     _log.getLogger(__name__).debug("downloading results 1-%d" % (int(rpp)))
@@ -284,7 +284,7 @@ def get_results(cp, sessionid, options):
           thispage = get_paging_by_url(url, cp, SECTION, query)
 
     #assert(type(pages), list)
-    print "all results recieved."
+    print ("all results recieved.")
     data = load_pages_json(pages)
     return data
 
@@ -303,7 +303,7 @@ def main_get_results(args=None, func=_print_page):
     sessionid = args[0]
     try:
         cp = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     data = get_results(cp, sessionid, options)
@@ -325,7 +325,7 @@ def main_session_stats(args=None):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
     
     pages = get_paging(configFile, SECTION, options, subresource=sessionid)
@@ -369,7 +369,7 @@ def main_session_graphs(args=None):
     # Import R stuff
     try:
         import rpy2
-    except ImportError, err:    
+    except ImportError as err:    
         op.error("rpy2 and a working R installation are required.\n"
                  "Import error: {0}".format(err))
     from turbine import rpython
@@ -382,7 +382,7 @@ def main_session_graphs(args=None):
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
-    except Exception, ex:
+    except Exception as ex:
         op.error(ex.Message)
 
     # Fetch data

@@ -20,10 +20,10 @@ import pyodbc
 SECTION = "Archiver"
 def run(**kw):
     conn_str = "DRIVER={SQL Server};SERVER=%(server)s;DATABASE=%(database)s;UID=%(userid)s;PWD=%(password)s" %kw
-    print conn_str
+    print (conn_str)
     cnxn = pyodbc.connect(conn_str)
     cursor = cnxn.cursor()
-    print cursor
+    print (cursor)
     return cursor
 
 def main(args=None):
