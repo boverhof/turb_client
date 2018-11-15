@@ -9,7 +9,7 @@ import sys,os
 import json
 import optparse
 import sys
-from ConfigParser import ConfigParser
+from configparser import configparser
 
 from turbine.commands.turbine_csv_script import *
 from turbine.commands.turbine_job_script import *

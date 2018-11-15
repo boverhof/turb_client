@@ -10,7 +10,7 @@
 #
 ###########################################################################
 import urllib3,csv,sys,os
-from ConfigParser import ConfigParser
+from configparser import configparser
 import json
 import optparse
 import sys
@@ -32,7 +32,7 @@ def main(args=None):
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE", description=main.__doc__)
     (options, args) = op.parse_args()
 
-    cp = ConfigParser()
+    cp = configparser()
     cp.read(args[0])
 
     run(server=cp.get(SECTION, 'server'), database=cp.get(SECTION, 'database'), 

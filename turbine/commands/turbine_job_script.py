@@ -14,7 +14,7 @@ import logging as _log
 import json
 import optparse
 import sys
-from ConfigParser import ConfigParser
+from configparser import configparser
 from urllib3 import HTTPError
 from turbine.commands import add_options, add_session_option, get_paging, get_page, states, _open_config, load_pages_json,\
     _print_as_json

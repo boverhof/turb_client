@@ -13,7 +13,7 @@ import urllib3,csv,sys,os,ssl,http.client,socket
 import json
 import optparse
 import sys
-from ConfigParser import ConfigParser
+from configparser import configparser
 import logging as _log
 import logging.config as _loggingconfig
 from turbine.utility import states
@@ -61,7 +61,7 @@ def _open_config(filename=None):
 
     if filename is None:
         raise RuntimeError("Provide Configuration as command-line argument or using environment variable 'TURBINE_CONFIG'")
-    cp = ConfigParser();
+    cp = configparser();
     cp.optionxform = str
     cp.read(filename)
     _open_config.cache_cp = cp
@@ -107,7 +107,7 @@ def _setup_logging(cp):
     """ Function will configure the logger only ONCE
     """
     if getattr(_setup_logging, 'done', False): return
-    assert isinstance(cp, ConfigParser)
+    assert isinstance(cp, configparser)
     try:
         fileConfig = cp.get('Logging', 'fileConfig')
         _loggingconfig.fileConfig(fileConfig)
@@ -218,7 +218,7 @@ def _setup(cp, url, realm=None):
     function before logging.   Initializes server certificate verification.
     """
     global _opener
-    assert isinstance(cp, ConfigParser)
+    assert isinstance(cp, configparser)
     _setup_logging(cp)
 
     if _setup.passman is None:

@@ -11,7 +11,7 @@
 import sys,os
 import json
 import optparse
-from ConfigParser import ConfigParser
+from configparser import configparser
 from turbine.commands import states
 from turbine.commands.turbine_job_script import parseExtraArgs
 

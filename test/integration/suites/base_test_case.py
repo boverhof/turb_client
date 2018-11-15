@@ -9,7 +9,7 @@
 #
 ###########################################################################
 import unittest, uuid, urllib3, os, time, json, tempfile, logging
-import ConfigParser as _CP
+import configparser as _CP
 from turbine.commands import _open_config, _setup_logging
 from turbine.commands import turbine_simulation_script as tsim
 
@@ -24,7 +24,7 @@ class Config(object):
         newt_sessionid
     """
     def __init__(self):
-        cp = _CP.ConfigParser(defaults=dict(path=''))
+        cp = _CP.configparser(defaults=dict(path=''))
         cp.read('integration_test.cfg')
         sec = 'Authentication'
         if not cp.has_section(sec):
