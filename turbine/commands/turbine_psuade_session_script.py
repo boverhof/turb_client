@@ -17,7 +17,7 @@ import time
 from turbine.commands.turbine_psuade_script import *
 from turbine.commands import add_options, post_page, get_page, get_page_by_url, get_paging, _open_config
 from turbine.commands.turbine_session_script import *
-from configparser import configparser
+from configparser import ConfigParser
 import dateutil.parser
 import datetime
 

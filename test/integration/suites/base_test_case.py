@@ -24,7 +24,7 @@ class Config(object):
         newt_sessionid
     """
     def __init__(self):
-        cp = _CP.configparser(defaults=dict(path=''))
+        cp = _CP.ConfigParser(defaults=dict(path=''))
         cp.read('integration_test.cfg')
         sec = 'Authentication'
         if not cp.has_section(sec):
