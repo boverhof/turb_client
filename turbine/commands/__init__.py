@@ -9,7 +9,7 @@
 #   $Rev: 10089 $
 #
 ###########################################################################
-import urllib3,csv,sys,os,ssl,http.client,socket
+import urllib.request,urllib.error,csv,sys,os,ssl,http.client,socket
 import json
 import optparse
 import sys
@@ -29,7 +29,7 @@ def handler_http_error(func):
     def _exit_on_http_error(*args, **kw):
         try:
             r = func(*args, **kw)
-        except urllib3.HTTPError as ex:
+        except urllib.error.HTTPError as ex:
             log.error("%s" %ex)
             if getattr(ex, 'read', None):
                 log.error("%s" %ex.read())
@@ -89,9 +89,9 @@ def _urlopen(url, data=None):
     However the response to this is not checked, so errors will not be thrown.  This function
     simply checks to see if there was an HTTPError, and throws one.
     """
-    result = urllib3.urlopen(url, data)
+    result = urllib.request.urlopen(url, data)
     if not (200 <= result.code < 300):
-        raise urllib3.HTTPError(result.url, result.code, result.msg, result.headers, result.fp)
+        raise urllib.error.HTTPError(result.url, result.code, result.msg, result.headers, result.fp)
     return result
 
 def _do_get(url):
@@ -127,17 +127,17 @@ class MyHTTPNtlmAuthHandler(HTTPNtlmAuthHandler.HTTPNtlmAuthHandler):
     def http_error_401(self, req, fp, code, msg, headers):
         response = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler.http_error_401(self, req, fp, code, msg, headers)
         # NOTE: problem with how 401 errors are retried, don't utilize the 'chain'
-        handler = urllib3.HTTPErrorProcessor()
+        handler = urllib.error.HTTPErrorProcessor()
         handler.parent = self.parent
         tmp = handler.http_response(req, response)
         if tmp:
             return tmp
         return response
 
-class TurbineHTTPDefaultErrorHandler(urllib3.HTTPDefaultErrorHandler):
+class TurbineHTTPDefaultErrorHandler(urllib.error.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, hdrs):
         msg += '\n%s' %fp.read()
-        raise urllib3.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
+        raise urllib.error.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
 
 
 class _HTTPSConnection(http.client.HTTPSConnection):
@@ -178,16 +178,16 @@ class _HTTPSConnection(http.client.HTTPSConnection):
                                     ca_certs=_HTTPSConnection.ca_certs)
 
 
-class _VerifyServer_HTTPSHandler(urllib3.HTTPSHandler):
+class _VerifyServer_HTTPSHandler(urllib.request.HTTPSHandler):
     """ server certificate verification, must subclass HTTPSConnection to override
     """
     def https_open(self, req):
         _log.getLogger(__name__).debug("HTTPS OPEN")
         return self.do_open(_HTTPSConnection, req)
 
-    https_request = urllib3.AbstractHTTPHandler.do_request_
+    https_request = urllib.request.AbstractHTTPHandler.do_request_
 
-class _AmazonRemappedHTTPBasicAuthHandler(urllib3.AbstractBasicAuthHandler, urllib3.BaseHandler):
+class _AmazonRemappedHTTPBasicAuthHandler(urllib.request.AbstractBasicAuthHandler, urllib.request.BaseHandler):
 
     auth_header = 'Authorization'
 
@@ -197,7 +197,7 @@ class _AmazonRemappedHTTPBasicAuthHandler(urllib3.AbstractBasicAuthHandler, urll
                                               url, req, headers)
         return response
 
-class _AmazonHTTPBasicCustomAuthHandler(urllib3.AbstractBasicAuthHandler, urllib3.BaseHandler):
+class _AmazonHTTPBasicCustomAuthHandler(urllib.request.AbstractBasicAuthHandler, urllib.request.BaseHandler):
     """ No www-authenticate header is included when "Authorized" Header is missing
     from request never invoke API Gateway Custom Authorizer.
     """
@@ -222,7 +222,7 @@ def _setup(cp, url, realm=None):
     _setup_logging(cp)
 
     if _setup.passman is None:
-        _setup.passman = urllib3.HTTPPasswordMgrWithDefaultRealm()
+        _setup.passman = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     elif _setup.passman.find_user_password(realm, url) != (None,None):
         _log.getLogger(__name__).debug('passman "%s" password already registered' %url)
         return
@@ -248,13 +248,13 @@ def _setup(cp, url, realm=None):
     if _opener is not None:
         return
 
-    authhandler = urllib3.HTTPBasicAuthHandler(passman)
+    authhandler = urllib.request.HTTPBasicAuthHandler(passman)
     #auth_NTLM = MyHTTPNtlmAuthHandler(passman)
 
-    handlers = [urllib3.ProxyHandler, urllib3.UnknownHandler, urllib3.HTTPHandler,
-                TurbineHTTPDefaultErrorHandler, urllib3.HTTPRedirectHandler,
-                urllib3.FTPHandler, urllib3.FileHandler,
-                urllib3.HTTPErrorProcessor]
+    handlers = [urllib.request.ProxyHandler, urllib.request.UnknownHandler, urllib.request.HTTPHandler,
+                TurbineHTTPDefaultErrorHandler, urllib.request.HTTPRedirectHandler,
+                urllib.request.FTPHandler, urllib.request.FileHandler,
+                urllib.error.HTTPErrorProcessor]
 
     if url.startswith('https'):
         handlers.append(_VerifyServer_HTTPSHandler)
@@ -270,8 +270,8 @@ def _setup(cp, url, realm=None):
     handlers.append(_AmazonHTTPBasicCustomAuthHandler(passman))
 
 
-    _opener = urllib3.build_opener(*handlers)
-    urllib3.install_opener(_opener)
+    _opener = urllib.request.build_opener(*handlers)
+    urllib.request.install_opener(_opener)
     return cp
 _setup.passman = None
 
@@ -315,7 +315,7 @@ def delete_page(configFile, section, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    request = urllib3.Request(url, data=None)
+    request = urllib.request.Request(url, data=None)
     request.get_method = lambda: 'DELETE'
     _log.getLogger(__name__).debug("DELETE URL: %s", url)
     p = _opener.open(request)
@@ -336,13 +336,13 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    request = urllib3.Request(url, data=data)
+    request = urllib.request.Request(url, data=data)
     request.add_header('Content-Type', content_type)
 
     request.get_method = lambda: 'PUT'
     try:
         d = _opener.open(request)
-    except urllib3.HTTPError as ex:
+    except urllib.error.HTTPError as ex:
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.__dict__))
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.readline()))
         raise
