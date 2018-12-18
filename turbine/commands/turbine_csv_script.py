@@ -11,7 +11,7 @@
 import sys,os, csv
 import json
 import optparse
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from turbine.commands import states
 from turbine.commands.turbine_job_script import parseExtraArgs
 
@@ -148,11 +148,11 @@ def writeJson2CSV(configFile, inputJson, csvInFilename, csvOutFilename):
       argname = inputVarNames[ii]
       jsonInputs = loadJsonObjFromJsonObj("Input", sample)
       if(not fuzzyEquals(inargs[ii], float(jsonInputs[argname]), 1e-6)):
-        print "Error: inputs from sample %d do not match those returned by server." % sampleNum
-        print "Has the csv input file changed since this job was submitted?"
-        print "csv input \t server expectation"
+        print ("Error: inputs from sample %d do not match those returned by server." % sampleNum)
+        print ("Has the csv input file changed since this job was submitted?")
+        print ("csv input \t server expectation")
         for idx in range(0, len(inargs)):
-          print inargs[idx], jsonInputs[argname]
+          print (inargs[idx], jsonInputs[argname])
     # End Check that inputs match in psuade file and server results
       
     #If the run DID complete, write the real outputs out to the outfile.

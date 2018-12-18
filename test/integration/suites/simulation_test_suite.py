@@ -8,7 +8,7 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import unittest, uuid, urllib2, os, time, json, tempfile, logging
+import unittest, uuid, urllib.request,urllib.error, os, time, json, tempfile, logging
 from base_test_case import BaseIntegrationTestCase
 from turbine.commands import turbine_simulation_script as tsim
 from turbine.commands import turbine_job_script as tjob
@@ -54,7 +54,7 @@ class SimulationWriteTest(BaseIntegrationTestCase):
 
         #try:
         #    data = tsim.main_get([simulation, self.config_name], func=None)
-        #except urllib2.HTTPError:
+        #except urllib.error.HTTPError:
         #    self.create_test_simulation()
         #    data = tsim.main_get([simulation, self.config_name], func=None)
             

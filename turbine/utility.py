@@ -114,7 +114,7 @@ def basic_session_stats(fd, all, verbose=True):
     """
     """
     if len(all) == 0:
-        print all
+        print (all)
         return
     
     print >>fd, "Basic Statistics"

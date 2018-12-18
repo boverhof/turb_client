@@ -7,7 +7,7 @@ See LICENSE.md for copyright notice!
 import sys, time, os
 #from run_turbine import *
 import json
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from turbine.commands.turbine_csv_script import *
 from turbine.commands.turbine_csv_session_script import *
 from turbine.commands import _open_config

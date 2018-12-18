@@ -9,7 +9,7 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import urllib2,csv,sys,os, shutil
+import urllib.request,urllib.error,csv,sys,os, shutil
 import json
 import optparse
 import sys, os
@@ -17,7 +17,7 @@ import time
 from turbine.commands.turbine_csv_script import *
 from turbine.commands import add_options, post_page, get_page, get_page_by_url, get_paging, _open_config
 from turbine.commands.turbine_session_script import *
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 import dateutil.parser
 import datetime
 
@@ -31,20 +31,20 @@ def csv_launch(configFile, psuadeInFilename):
 
     #create the session
     sessionid = create_session(configFile)
-    print sessionid
+    print (sessionid)
 
     #create all the jobs in the session
     batches = len(inputsJson) / 500
     if(len(inputsJson) % 500 > 0):
         batches += 1
 
-    print "Num batches: ", batches
+    print ("Num batches: ", batches)
 
     for ii in range(0,batches):
       start = (ii)*500
       end = ((ii+1)*500)
       tmparray = inputsJson[(ii)*500:((ii+1)*500)]
-      print "batch:", ii, " start:", start, " end:", end, " size: ", tmparray.__len__()
+      print ("batch:", ii, " start:", start, " end:", end, " size: ", tmparray.__len__())
       createJobsResult = create_jobs(configFile, sessionid, tmparray)
       submitJobsResult = start_jobs(configFile, sessionid)
 
@@ -64,7 +64,7 @@ def main_csv_launch(args=None):
     
     configFile = _open_config(configFilename)
 
-    print csv_launch(configFile, csvInFilename)
+    print (csv_launch(configFile, csvInFilename))
 
 
 def write_jobs_to_csv(configFile, sessionid, csvInFilename, csvOutFilename):
@@ -93,7 +93,7 @@ def main_write_jobs_to_csv(args=None):
     
     write_jobs_to_csv(configFile, sessionid, csvInFilename, csvOutFilename)
 
-    print "Jobs written to", args[2]
+    print ("Jobs written to", args[2])
 
 
 def main_do_csv(args=None):
@@ -117,17 +117,17 @@ def main_do_csv(args=None):
     if(sessionid == None):
       sessionid = csv_launch(configFile, csvInFilename)
 
-    print "SessionID:", sessionid
+    print ("SessionID:", sessionid)
     #loop checking that the jobs haven't finished yet
     jobsLeft = 1
     while(jobsLeft > 0):    
       jobsLeft = jobs_unfinished(configFile, sessionid)       
-      print jobsLeft
+      print (jobsLeft)
       if(jobsLeft > 0): time.sleep(jobsLeft*5)
 
     #Now that the jobs are complete, get them all
     write_jobs_to_csv(configFile, sessionid, csvInFilename, csvOutFilename)
-    print "Jobs written to", csvOutFilename
+    print ("Jobs written to", csvOutFilename)
 
 
 main = main_list
