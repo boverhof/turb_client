@@ -17,8 +17,6 @@ from configparser import ConfigParser
 import logging as _log
 import logging.config as _loggingconfig
 from turbine.utility import states
-from ntlm3 import HTTPNtlmAuthHandler
-
 
 _opener = None
 
@@ -121,18 +119,6 @@ def _setup_logging(cp):
     l.debug('Setup Logging Done')
     _setup_logging.done = True
 
-
-class MyHTTPNtlmAuthHandler(HTTPNtlmAuthHandler.HTTPNtlmAuthHandler):
-
-    def http_error_401(self, req, fp, code, msg, headers):
-        response = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler.http_error_401(self, req, fp, code, msg, headers)
-        # NOTE: problem with how 401 errors are retried, don't utilize the 'chain'
-        handler = urllib.error.HTTPErrorProcessor()
-        handler.parent = self.parent
-        tmp = handler.http_response(req, response)
-        if tmp:
-            return tmp
-        return response
 
 class TurbineHTTPDefaultErrorHandler(urllib.request.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, hdrs):
@@ -249,12 +235,10 @@ def _setup(cp, url, realm=None):
         return
 
     authhandler = urllib.request.HTTPBasicAuthHandler(passman)
-    #auth_NTLM = MyHTTPNtlmAuthHandler(passman)
-
     handlers = [urllib.request.ProxyHandler, urllib.request.UnknownHandler, urllib.request.HTTPHandler,
                 TurbineHTTPDefaultErrorHandler, urllib.request.HTTPRedirectHandler,
                 urllib.request.FTPHandler, urllib.request.FileHandler,
-                urllib.error.HTTPErrorProcessor]
+                urllib.request.HTTPErrorProcessor]
 
     if url.startswith('https'):
         handlers.append(_VerifyServer_HTTPSHandler)
@@ -455,5 +439,5 @@ def get_paging(configFile, section, options, **extra_query):
 def load_pages_json(pages):
     data = []
     for l in pages:
-        data += json.loads(l)
+        data += json.loads(l.decode('utf-8'))
     return data
