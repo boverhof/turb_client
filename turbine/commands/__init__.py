@@ -99,10 +99,7 @@ def _do_get(url):
     _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', result.getcode(), result.msg, g)
     content = result.read()
     #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    _log.getLogger(__name__).debug("Content-Type: %s", content_type)
-    if content_type == 'application/json; charset=utf-8':
-        return content.decode('utf-8')
-    return content.decode('latin-1')
+    return _decode_codec(content, content_type)
 
 
 def _setup_logging(cp):
@@ -316,23 +313,37 @@ def put_page(configFile, section, data, **kw):
     url = configFile.get(section, 'url')
     return _put_page_by_url(url, configFile, section, data, **kw)
 
-def _encode_codec(data, http_content_type):
+def _encode_codec(data, content_type):
+    _log.getLogger(__name__).debug(" Encode Content-Type: %s", content_type)
     if type(data) is str:
-        if content_type == 'application/octet-stream':
+        if content_type == 'application/json; charset=utf-8':
+            codec_name = 'utf-8'
+        elif content_type == 'application/octet-stream':
             codec_name = 'latin-1'
         else:
-            codec_name = "utf-8"
-        data = data.encode(codec_name)
-    return data
+            codec_name = 'utf-8'
+        return data.encode(codec_name)
+    if type(data) is bytes:
+        if content_type == 'application/octet-stream':
+            return data
+    _log.error("Bad Data Type %s", type(data))
+    raise RuntimeError("Bad Data Type %s" %type(data))
 
-def _decode_codec(data, http_content_type):
-    if type(data) is str:
-        if content_type == 'application/octet-stream':
+
+def _decode_codec(data, content_type):
+    _log.getLogger(__name__).debug("Decode Content-Type: %s", content_type)
+    if type(data) is bytes:
+        if content_type == 'application/json; charset=utf-8':
+            codec_name = 'utf-8'
+        elif content_type == 'application/octet-stream':
+            codec_name = 'latin-1'
+        elif content_type == 'text/plain':
             codec_name = 'latin-1'
         else:
-            codec_name = "utf-8"
-        data = data.decode(codec_name)
-    return data
+            codec_name = 'utf-8'
+        return data.decode(codec_name)
+    _log.getLogger(__name__).error("Bad Data Type %s", type(data))
+    raise RuntimeError("Bad Data Type %s" %type(data))
 
 def _put_page_by_url(url, configFile, section, data, content_type='application/octet-stream', **kw):
     """
@@ -344,7 +355,7 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     if subr is not None:
         url += subr
 
-    data = _encode_data(data, content_type)
+    data = _encode_codec(data, content_type)
     request = urllib.request.Request(url, data=data)
     request.add_header('Content-Type', content_type)
     request.get_method = lambda: 'PUT'
