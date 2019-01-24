@@ -57,7 +57,7 @@ def main(args=None, func=_print_numbered_lines):
     #pages = get_paging(configFile, SECTION, options, **query)
     #data = load_pages_json(pages)
     page = get_page(configFile, SECTION, **query)
-    data = json.loads(page.decode('utf-8'))
+    data = json.loads(page)
     if options.json:
         func=_print_as_json
     if func: func(data)

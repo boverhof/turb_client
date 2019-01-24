@@ -93,12 +93,16 @@ def _urlopen(url, data=None):
     return result
 
 def _do_get(url):
-    d = _urlopen(url)
-    g = d.geturl()
-    _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', d.getcode(),d.msg, g)
-    content = d.read()
-    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    result = _urlopen(url)
+    g = result.geturl()
+    content_type = result.headers.get('content-type')
+    _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', result.getcode(), result.msg, g)
+    content = result.read()
+    #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    _log.getLogger(__name__).debug("Content-Type: %s", content_type)
+    if content_type == 'application/json; charset=utf-8':
+        return content.decode('utf-8')
+    return content.decode('latin-1')
 
 
 def _setup_logging(cp):
@@ -312,17 +316,37 @@ def put_page(configFile, section, data, **kw):
     url = configFile.get(section, 'url')
     return _put_page_by_url(url, configFile, section, data, **kw)
 
+def _encode_codec(data, http_content_type):
+    if type(data) is str:
+        if content_type == 'application/octet-stream':
+            codec_name = 'latin-1'
+        else:
+            codec_name = "utf-8"
+        data = data.encode(codec_name)
+    return data
+
+def _decode_codec(data, http_content_type):
+    if type(data) is str:
+        if content_type == 'application/octet-stream':
+            codec_name = 'latin-1'
+        else:
+            codec_name = "utf-8"
+        data = data.decode(codec_name)
+    return data
+
 def _put_page_by_url(url, configFile, section, data, content_type='application/octet-stream', **kw):
     """
     data -- data to PUT
     """
+    codec_name = None
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
+
+    data = _encode_data(data, content_type)
     request = urllib.request.Request(url, data=data)
     request.add_header('Content-Type', content_type)
-
     request.get_method = lambda: 'PUT'
     try:
         d = _opener.open(request)
@@ -333,10 +357,10 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
 
     _log.getLogger(__name__).info("HTTP PUT(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("Content-Type: %s", content_type)
-    _log.getLogger(__name__).debug("BODY:\n%s", data)
+    #_log.getLogger(__name__).debug("BODY:\n%s", data)
     content = d.read()
-    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return _decode_codec(content, content_type)
 
 def post_page_by_url(url, configFile, section, data, **kw):
     """
@@ -375,7 +399,8 @@ def get_page_by_url(url, configFile, **extra_query):
 
 def get_page(configFile, section, **extra_query):
     url = configFile.get(section, 'url')
-    return get_page_by_url(url, configFile, **extra_query)
+    content = get_page_by_url(url, configFile, **extra_query)
+    return content
 
 #Returns a URL with the subresource tacked on and a complete set of query parameters
 def standardizeOptions(url, options, **extra_query):
@@ -438,6 +463,6 @@ def get_paging(configFile, section, options, **extra_query):
 
 def load_pages_json(pages):
     data = []
-    for l in pages:
-        data += json.loads(l.decode('utf-8'))
+    for p in pages:
+        data += json.loads(p)
     return data
