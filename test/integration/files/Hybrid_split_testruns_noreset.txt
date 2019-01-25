@@ -1,12 +1,12 @@
 [
-  {"Input": {"UQ_ADS_db":0.9},  "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false}, 
-  {"Input": {"UQ_ADS_db":0.92}, "Simulation": "ACMHybridSplit", "Reset":true, "Visible": true}, 
-  {"Input": {"UQ_ADS_db":0.94}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false}, 
-  {"Input": {"UQ_ADS_db":0.96}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true}, 
-  {"Input": {"UQ_ADS_db":0.98}, "Simulation": "ACMHybridSplit", "Reset":true, "Visible": false}, 
-  {"Input": {"UQ_ADS_db":1.0},  "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true}, 
-  {"Input": {"UQ_ADS_db":1.02}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false}, 
-  {"Input": {"UQ_ADS_db":1.04}, "Simulation": "ACMHybridSplit", "Reset":true, "Visible": true}, 
-  {"Input": {"UQ_ADS_db":1.06}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true}, 
+  {"Input": {"UQ_ADS_db":0.9},  "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false},
+  {"Input": {"UQ_ADS_db":0.92}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true},
+  {"Input": {"UQ_ADS_db":0.94}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false},
+  {"Input": {"UQ_ADS_db":0.96}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true},
+  {"Input": {"UQ_ADS_db":0.98}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false},
+  {"Input": {"UQ_ADS_db":1.0},  "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true},
+  {"Input": {"UQ_ADS_db":1.02}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": false},
+  {"Input": {"UQ_ADS_db":1.04}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true},
+  {"Input": {"UQ_ADS_db":1.06}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true},
   {"Input": {"UQ_ADS_db":1.08}, "Simulation": "ACMHybridSplit", "Reset":false, "Visible": true}
-] 
+]

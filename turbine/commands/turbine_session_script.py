@@ -3,7 +3,7 @@
 # $Id: turbine_session_script.py 4480 2013-12-20 23:20:21Z boverhof $
 # Joshua R. Boverhof, LBNL
 # See LICENSE.md for copyright notice!
-# 
+#
 #   $Author: boverhof $
 #   $Date: 2013-12-20 15:20:21 -0800 (Fri, 20 Dec 2013) $
 #   $Rev: 4480 $
@@ -15,8 +15,9 @@ import logging as _log
 from urllib.error import HTTPError
 from turbine.commands import add_options, add_json_option, delete_page, post_page, \
     get_page, get_paging, get_paging_by_url, _open_config, getFromConfigWithDefaults, \
-    _print_page, _print_numbered_lines, _print_as_json, load_pages_json
-    
+    _print_page, _print_numbered_lines, _print_as_json, load_pages_json, \
+    HEADER_CONTENT_TYPE_JSON
+
 from turbine.utility import basic_session_stats
 
 SECTION = "Session"
@@ -25,7 +26,7 @@ SECTION = "Session"
 def main_list(args=None, func=_print_numbered_lines):
     """Prints human readable listing of all session GUIDs.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
              description=main_list.__doc__)
 
     add_options(op)
@@ -38,7 +39,7 @@ def main_list(args=None, func=_print_numbered_lines):
 
     if options.json:
         func=_print_as_json
-        
+
     query = {}
     pages = get_paging(configFile, SECTION, options, **query)
     data = load_pages_json(pages)
@@ -58,14 +59,14 @@ def jobs_status(configFile, sessionid):
 def main_jobs_status(args=None, func=_print_as_json):
     """session resource utility, lists all session resources
     """
-    op = optparse.OptionParser(usage="USAGE: %prog [options] SESSIONID CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog [options] SESSIONID CONFIG_FILE",
              description=main_jobs_status.__doc__)
     add_options(op)
     (options, args) = op.parse_args(args)
 
     if len(args) < 1:
         op.error('expecting >= 1 argument')
-        
+
     sessionid = args[0]
     try:
         configFile = _open_config(*args[1:])
@@ -73,23 +74,27 @@ def main_jobs_status(args=None, func=_print_as_json):
         op.error(ex.Message)
 
     data = jobs_status(configFile, sessionid)
-    if func: 
+    if func:
         func(data)
-    return data    
+    return data
 
 
 def create_session(configFile):
-    return post_page(configFile, SECTION, "").strip("\"")  #Strip the quotes off the sessionid
-    
-    
+    """ returns a GUID, must remove quotes
+    """
+    contents = post_page(configFile, SECTION, b'')
+    _log.getLogger(__name__).debug("SESSION: %s", contents)
+    return contents.strip('"')
+
+
 def main_create_session(args=None, func=_print_page):
     """Creates new session resource and prints GUID of created session.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog CONFIG_FILE",
              description=main_create_session.__doc__)
 
     (options, args) = op.parse_args(args)
-        
+
     try:
         configFile = _open_config(*args)
     except Exception as ex:
@@ -105,12 +110,18 @@ def create_jobs(configFile, sessionid, jobsList):
     """ jobsList is a list of jobs, usually provided from a JSON file
     """
     #assert (type(jobsList), list)
-    return post_page(configFile, SECTION, json.dumps(jobsList), subresource=sessionid)
+    content = bytes(json.dumps(jobsList), encoding='UTF-8')
+    return post_page(
+            configFile,
+            SECTION,
+            content,
+            headers={'Content-Type':HEADER_CONTENT_TYPE_JSON},
+            subresource=sessionid)
 
 def main_create_jobs(args=None, func=_print_page):
     """Appends job descriptions to a session, prints the number of jobs added.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID JOBS_FILE CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID JOBS_FILE CONFIG_FILE",
              description=main_create_jobs.__doc__)
 
     (options, args) = op.parse_args(args)
@@ -127,7 +138,7 @@ def main_create_jobs(args=None, func=_print_page):
     log = _log.getLogger(__name__)
     log.debug("main_create_jobs")
     input_data = json.loads(open(jobs_file).read())
-    
+
     assert(type(input_data) is list)
 
     for o in input_data:
@@ -152,7 +163,7 @@ def stop_jobs(configFile, sessionid):
 def main_stop_jobs(args=None):
     """Move all jobs in state submit to pause.  Prints the number of jobs moved to state pause.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_stop_jobs.__doc__)
 
     (options, args) = op.parse_args(args)
@@ -171,7 +182,7 @@ def main_stop_jobs(args=None):
 def main_delete(args=None, func=_print_page):
     """Delete session and all jobs it contains, prints number of jobs deleted as result of session delete.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_delete.__doc__)
 
     (options, args) = op.parse_args(args)
@@ -185,8 +196,8 @@ def main_delete(args=None, func=_print_page):
         op.error(ex.Message)
 
     log = _log.getLogger(__name__)
-   
-    try: 
+
+    try:
         page = delete_page(configFile, SECTION, subresource='%s' %sessionid)
     except HTTPError as ex:
         log.error(ex)
@@ -198,11 +209,11 @@ def main_delete(args=None, func=_print_page):
 
 def kill_jobs(configFile, sessionid):
     return post_page(configFile, SECTION, "", subresource='%s/kill' %sessionid)
-    
+
 def main_kill_jobs(args=None, func=_print_page):
     """Terminate jobs in session in state setup, running.  Print number of jobs terminated.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_kill_jobs.__doc__)
 
     (options, args) = op.parse_args(args)
@@ -214,7 +225,7 @@ def main_kill_jobs(args=None, func=_print_page):
         configFile = _open_config(*args[1:])
     except Exception as ex:
         op.error(ex.Message)
-        
+
     page = kill_jobs(configFile, sessionid)
     #data = json.load(page)
     data = int(page)
@@ -224,12 +235,17 @@ def main_kill_jobs(args=None, func=_print_page):
 
 
 def start_jobs(configFile, sessionid):
-    return  post_page(configFile, SECTION, "", subresource='%s/start' %sessionid)
+    return  post_page(
+                configFile, 
+                SECTION,
+                b'',
+                headers={'Content-Type':HEADER_CONTENT_TYPE_JSON},
+                subresource='%s/start' %sessionid)
 
 def main_start_jobs(args=None, func=_print_page):
     """Move all jobs in states pause and create to submit.  Prints the number of jobs moved to state submit.
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_start_jobs.__doc__)
 
     (options, args) = op.parse_args(args)
@@ -259,14 +275,14 @@ def get_results(cp, sessionid, options):
 
     pagenum = options.page
     rpp = options.rpp
-    
+
     query = {}
     query['subresource'] = sessionid
     query['verbose'] = verbose
-    query['rpp'] = str(rpp) 
-    query['page'] = pagenum 
+    query['rpp'] = str(rpp)
+    query['page'] = pagenum
     print (query)
-    
+
     pages = []
     _log.getLogger(__name__).debug("downloading results 1-%d" % (int(rpp)))
     if (pagenum > 0):
@@ -291,7 +307,7 @@ def get_results(cp, sessionid, options):
 def main_get_results(args=None, func=_print_page):
     """Gets the results of all the completed jobs in this session
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_get_results.__doc__)
 
     add_options(op)
@@ -312,9 +328,9 @@ def main_get_results(args=None, func=_print_page):
 
 
 def main_session_stats(args=None):
-    """session resource utility, prints basic session statistics 
+    """session resource utility, prints basic session statistics
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_session_stats.__doc__)
 
     add_options(op)
@@ -327,21 +343,21 @@ def main_session_stats(args=None):
         configFile = _open_config(*args[1:])
     except Exception as ex:
         op.error(ex.Message)
-    
+
     pages = get_paging(configFile, SECTION, options, subresource=sessionid)
     data = load_pages_json(pages)
-    
+
     basic_session_stats(sys.stdout, data, verbose=options.verbose)
-    
+
     #if options.verbose:
-    #    for i in success_l: 
+    #    for i in success_l:
     #        print i['Output']
     return data
 
 def main_session_graphs(args=None):
-    """session resource utility, creates session stats graphs with R 
+    """session resource utility, creates session stats graphs with R
     """
-    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog SESSIONID  CONFIG_FILE",
              description=main_session_stats.__doc__)
     add_options(op)
     op.add_option("--plot", dest="plot", help="Plot type (see --list). "
@@ -369,7 +385,7 @@ def main_session_graphs(args=None):
     # Import R stuff
     try:
         import rpy2
-    except ImportError as err:    
+    except ImportError as err:
         op.error("rpy2 and a working R installation are required.\n"
                  "Import error: {0}".format(err))
     from turbine import rpython
@@ -403,7 +419,7 @@ def main_session_graphs(args=None):
     device = "png"
     filename = "%s_%s.%s" %(options.plot, sessionid, device)
     getattr(plot, "plot_" + options.plot)(filename, device=device)
-    
+
     return { options.plot : filename }
 
 class Plot:
@@ -415,7 +431,7 @@ class Plot:
     STATES = ['Submit', 'Setup', 'Running', 'Finished']
     METRICS = ['Queue', 'Setup', 'Run']
     OPTIONS = {
-        "density" : { "metric" : METRICS[2] }    
+        "density" : { "metric" : METRICS[2] }
     }
     def __init__(self, df, hdr, **plot_opts):
         import rpy2.robjects.lib.ggplot2 as ggplot2
@@ -426,7 +442,7 @@ class Plot:
         from turbine.rpython import R
         self._R = R
         self._opts = plot_opts
-        
+
     def plot_density(self, filename, device="png", device_opts={}):
         metric = self._opts.get("metric", self.OPTIONS["density"]["metric"])
         hdr_metric_idx = 2 + self.METRICS.index(metric)
@@ -443,7 +459,7 @@ class Plot:
     def _melt_states(self, df, names):
         return self._R.melt(df, id_var=names[:2],
                       measure=names[2:-1], variable_name='state')
-        
+
     def plot_multi_density(self, filename, device="png", device_opts={}):
         df, g2, h, r = self._data, self._g2, self._hdr, self._R
         dfm = self._melt_states(df, h)
@@ -474,7 +490,7 @@ def session_perf_from_json(data):
     """Create a set of columns from the session data.
     This set of columns will be easy to load into an R data frame,
     but could also be operated on in Python directly.
-    
+
     Resulting columns are:
        (num, times, Setup, Running, Finished, Total)
     """
@@ -486,7 +502,7 @@ def session_perf_from_json(data):
     n = len(data)
     # Add deltas for each state
     # first state doesn't subtract other deltas
-    state = states[1] 
+    state = states[1]
     prev = [(_dparse(data[row][state]) - m[1][row]).total_seconds()
             for row in xrange(n)]
     m.append(prev)
@@ -505,8 +521,8 @@ def session_perf_from_json(data):
     #for row in range(n-10,n):
     #    for col in m:
     #        sys.stdout.write("{0} ".format(col[row]))
-    #    print('') 
-    # return data and header            
+    #    print('')
+    # return data and header
     return ((m, ['num', 'time'] + states[:-1] + ['Total']))
 
 main = main_list

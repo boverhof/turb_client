@@ -20,6 +20,8 @@ from turbine.utility import states
 
 _opener = None
 
+HEADER_CONTENT_TYPE_JSON = 'application/json; charset=utf-8'
+
 def handler_http_error(func):
     """
     """
@@ -82,12 +84,13 @@ def _make_url(url, **query):
         url += '&%s=%s' %(k,v)
     return url
 
-def _urlopen(url, data=None):
+def _urlopen(url, data=None, headers={}):
     """ HTTP 401 responses are handled by the chain, and the request is retried with credentials.
     However the response to this is not checked, so errors will not be thrown.  This function
     simply checks to see if there was an HTTPError, and throws one.
     """
-    result = urllib.request.urlopen(url, data)
+    request = urllib.request.Request(url, data=data, headers=headers)
+    result = urllib.request.urlopen(request)
     if not (200 <= result.code < 300):
         raise urllib.error.HTTPError(result.url, result.code, result.msg, result.headers, result.fp)
     return result
@@ -371,9 +374,9 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     #_log.getLogger(__name__).debug("BODY:\n%s", data)
     content = d.read()
     #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return _decode_codec(content, content_type)
+    return _decode_codec(content, d.headers.get('Content-Type'))
 
-def post_page_by_url(url, configFile, section, data, **kw):
+def post_page_by_url(url, configFile, section, data, headers={}, **kw):
     """
     data -- data to POST
     """
@@ -381,12 +384,12 @@ def post_page_by_url(url, configFile, section, data, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    d = _urlopen(url, data)
+    d = _urlopen(url, data, headers=headers)
     _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("BODY:\n%s", data)
     content = d.read()
     _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    return _decode_codec(content, d.headers.get('Content-Type'))
 
 def post_page(configFile, section, data, **kw):
     """
