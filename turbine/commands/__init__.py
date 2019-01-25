@@ -9,18 +9,18 @@
 #   $Rev: 10089 $
 #
 ###########################################################################
-import urllib2,csv,sys,os,ssl,httplib,socket
+import urllib.request,urllib.error,csv,sys,os,ssl,http.client,socket
 import json
 import optparse
 import sys
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 import logging as _log
 import logging.config as _loggingconfig
 from turbine.utility import states
-from ntlm import HTTPNtlmAuthHandler
-
 
 _opener = None
+
+HEADER_CONTENT_TYPE_JSON = 'application/json; charset=utf-8'
 
 def handler_http_error(func):
     """
@@ -29,7 +29,7 @@ def handler_http_error(func):
     def _exit_on_http_error(*args, **kw):
         try:
             r = func(*args, **kw)
-        except urllib2.HTTPError,ex:
+        except urllib.error.HTTPError as ex:
             log.error("%s" %ex)
             if getattr(ex, 'read', None):
                 log.error("%s" %ex.read())
@@ -60,7 +60,7 @@ def _open_config(filename=None):
         filename = os.environ.get("TURBINE_CONFIG")
 
     if filename is None:
-        raise RuntimeError, "Provide Configuration as command-line argument or using environment variable 'TURBINE_CONFIG'"
+        raise RuntimeError("Provide Configuration as command-line argument or using environment variable 'TURBINE_CONFIG'")
     cp = ConfigParser();
     cp.optionxform = str
     cp.read(filename)
@@ -84,23 +84,25 @@ def _make_url(url, **query):
         url += '&%s=%s' %(k,v)
     return url
 
-def _urlopen(url, data=None):
+def _urlopen(url, data=None, headers={}):
     """ HTTP 401 responses are handled by the chain, and the request is retried with credentials.
     However the response to this is not checked, so errors will not be thrown.  This function
     simply checks to see if there was an HTTPError, and throws one.
     """
-    result = urllib2.urlopen(url, data)
+    request = urllib.request.Request(url, data=data, headers=headers)
+    result = urllib.request.urlopen(request)
     if not (200 <= result.code < 300):
-        raise urllib2.HTTPError(result.url, result.code, result.msg, result.headers, result.fp)
+        raise urllib.error.HTTPError(result.url, result.code, result.msg, result.headers, result.fp)
     return result
 
 def _do_get(url):
-    d = _urlopen(url)
-    g = d.geturl()
-    _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', d.getcode(),d.msg, g)
-    content = d.read()
-    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    result = _urlopen(url)
+    g = result.geturl()
+    content_type = result.headers.get('content-type')
+    _log.getLogger(__name__).info('HTTP GET(%d) %s: %s', result.getcode(), result.msg, g)
+    content = result.read()
+    #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return _decode_codec(content, content_type)
 
 
 def _setup_logging(cp):
@@ -111,7 +113,7 @@ def _setup_logging(cp):
     try:
         fileConfig = cp.get('Logging', 'fileConfig')
         _loggingconfig.fileConfig(fileConfig)
-    except Exception,ex:
+    except Exception as ex:
         _log.basicConfig(\
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             level=_log.ERROR
@@ -122,25 +124,13 @@ def _setup_logging(cp):
     _setup_logging.done = True
 
 
-class MyHTTPNtlmAuthHandler(HTTPNtlmAuthHandler.HTTPNtlmAuthHandler):
-
-    def http_error_401(self, req, fp, code, msg, headers):
-        response = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler.http_error_401(self, req, fp, code, msg, headers)
-        # NOTE: problem with how 401 errors are retried, don't utilize the 'chain'
-        handler = urllib2.HTTPErrorProcessor()
-        handler.parent = self.parent
-        tmp = handler.http_response(req, response)
-        if tmp:
-            return tmp
-        return response
-
-class TurbineHTTPDefaultErrorHandler(urllib2.HTTPDefaultErrorHandler):
+class TurbineHTTPDefaultErrorHandler(urllib.request.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, hdrs):
         msg += '\n%s' %fp.read()
-        raise urllib2.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
+        raise urllib.request.HTTPDefaultErrorHandler.http_error_default(self, req, fp, code, msg, hdrs)
 
 
-class _HTTPSConnection(httplib.HTTPSConnection):
+class _HTTPSConnection(http.client.HTTPSConnection):
     """ Verify the server certificate with trusted CA certificates
     """
     ca_certs = None
@@ -178,16 +168,16 @@ class _HTTPSConnection(httplib.HTTPSConnection):
                                     ca_certs=_HTTPSConnection.ca_certs)
 
 
-class _VerifyServer_HTTPSHandler(urllib2.HTTPSHandler):
+class _VerifyServer_HTTPSHandler(urllib.request.HTTPSHandler):
     """ server certificate verification, must subclass HTTPSConnection to override
     """
     def https_open(self, req):
         _log.getLogger(__name__).debug("HTTPS OPEN")
         return self.do_open(_HTTPSConnection, req)
 
-    https_request = urllib2.AbstractHTTPHandler.do_request_
+    https_request = urllib.request.AbstractHTTPHandler.do_request_
 
-class _AmazonRemappedHTTPBasicAuthHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+class _AmazonRemappedHTTPBasicAuthHandler(urllib.request.AbstractBasicAuthHandler, urllib.request.BaseHandler):
 
     auth_header = 'Authorization'
 
@@ -197,7 +187,7 @@ class _AmazonRemappedHTTPBasicAuthHandler(urllib2.AbstractBasicAuthHandler, urll
                                               url, req, headers)
         return response
 
-class _AmazonHTTPBasicCustomAuthHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+class _AmazonHTTPBasicCustomAuthHandler(urllib.request.AbstractBasicAuthHandler, urllib.request.BaseHandler):
     """ No www-authenticate header is included when "Authorized" Header is missing
     from request never invoke API Gateway Custom Authorizer.
     """
@@ -222,7 +212,7 @@ def _setup(cp, url, realm=None):
     _setup_logging(cp)
 
     if _setup.passman is None:
-        _setup.passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        _setup.passman = urllib.request.HTTPPasswordMgrWithDefaultRealm()
     elif _setup.passman.find_user_password(realm, url) != (None,None):
         _log.getLogger(__name__).debug('passman "%s" password already registered' %url)
         return
@@ -248,13 +238,11 @@ def _setup(cp, url, realm=None):
     if _opener is not None:
         return
 
-    authhandler = urllib2.HTTPBasicAuthHandler(passman)
-    #auth_NTLM = MyHTTPNtlmAuthHandler(passman)
-
-    handlers = [urllib2.ProxyHandler, urllib2.UnknownHandler, urllib2.HTTPHandler,
-                TurbineHTTPDefaultErrorHandler, urllib2.HTTPRedirectHandler,
-                urllib2.FTPHandler, urllib2.FileHandler,
-                urllib2.HTTPErrorProcessor]
+    authhandler = urllib.request.HTTPBasicAuthHandler(passman)
+    handlers = [urllib.request.ProxyHandler, urllib.request.UnknownHandler, urllib.request.HTTPHandler,
+                TurbineHTTPDefaultErrorHandler, urllib.request.HTTPRedirectHandler,
+                urllib.request.FTPHandler, urllib.request.FileHandler,
+                urllib.request.HTTPErrorProcessor]
 
     if url.startswith('https'):
         handlers.append(_VerifyServer_HTTPSHandler)
@@ -270,8 +258,8 @@ def _setup(cp, url, realm=None):
     handlers.append(_AmazonHTTPBasicCustomAuthHandler(passman))
 
 
-    _opener = urllib2.build_opener(*handlers)
-    urllib2.install_opener(_opener)
+    _opener = urllib.request.build_opener(*handlers)
+    urllib.request.install_opener(_opener)
     return cp
 _setup.passman = None
 
@@ -315,7 +303,7 @@ def delete_page(configFile, section, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    request = urllib2.Request(url, data=None)
+    request = urllib.request.Request(url, data=None)
     request.get_method = lambda: 'DELETE'
     _log.getLogger(__name__).debug("DELETE URL: %s", url)
     p = _opener.open(request)
@@ -328,33 +316,67 @@ def put_page(configFile, section, data, **kw):
     url = configFile.get(section, 'url')
     return _put_page_by_url(url, configFile, section, data, **kw)
 
+def _encode_codec(data, content_type):
+    _log.getLogger(__name__).debug(" Encode Content-Type: %s", content_type)
+    if type(data) is str:
+        if content_type == 'application/json; charset=utf-8':
+            codec_name = 'utf-8'
+        elif content_type == 'application/octet-stream':
+            codec_name = 'latin-1'
+        else:
+            codec_name = 'utf-8'
+        return data.encode(codec_name)
+    if type(data) is bytes:
+        if content_type == 'application/octet-stream':
+            return data
+    _log.error("Bad Data Type %s", type(data))
+    raise RuntimeError("Bad Data Type %s" %type(data))
+
+
+def _decode_codec(data, content_type):
+    _log.getLogger(__name__).debug("Decode Content-Type: %s", content_type)
+    if type(data) is bytes:
+        if content_type == 'application/json; charset=utf-8':
+            codec_name = 'utf-8'
+        elif content_type == 'application/octet-stream':
+            codec_name = 'latin-1'
+        elif content_type == 'text/plain':
+            codec_name = 'latin-1'
+        else:
+            codec_name = 'utf-8'
+        return data.decode(codec_name)
+    _log.getLogger(__name__).error("Bad Data Type %s", type(data))
+    raise RuntimeError("Bad Data Type %s" %type(data))
+
 def _put_page_by_url(url, configFile, section, data, content_type='application/octet-stream', **kw):
     """
     data -- data to PUT
     """
+    codec_name = None
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    request = urllib2.Request(url, data=data)
-    request.add_header('Content-Type', content_type)
 
+    data = _encode_codec(data, content_type)
+    request = urllib.request.Request(url, data=data)
+    request.add_header('Content-Type', content_type)
     request.get_method = lambda: 'PUT'
     try:
         d = _opener.open(request)
-    except urllib2.HTTPError, ex:
+    except urllib.error.HTTPError as ex:
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.__dict__))
         _log.getLogger(__name__).debug("HTTPError: " + str(ex.readline()))
         raise
 
     _log.getLogger(__name__).info("HTTP PUT(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("Content-Type: %s", content_type)
-    _log.getLogger(__name__).debug("BODY:\n%s", data)
+    #_log.getLogger(__name__).debug("BODY:\n%s", data)
     content = d.read()
-    _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    #_log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
+    return _decode_codec(content, d.headers.get('Content-Type'))
 
-def post_page_by_url(url, configFile, section, data, **kw):
+def post_page_by_url(url, configFile, section, data, headers={}, **kw):
     """
     data -- data to POST
     """
@@ -362,12 +384,12 @@ def post_page_by_url(url, configFile, section, data, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url += subr
-    d = _urlopen(url, data)
+    d = _urlopen(url, data, headers=headers)
     _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("BODY:\n%s", data)
     content = d.read()
     _log.getLogger(__name__).debug("HTTP RESPONSE: \n%s", content)
-    return content
+    return _decode_codec(content, d.headers.get('Content-Type'))
 
 def post_page(configFile, section, data, **kw):
     """
@@ -391,7 +413,8 @@ def get_page_by_url(url, configFile, **extra_query):
 
 def get_page(configFile, section, **extra_query):
     url = configFile.get(section, 'url')
-    return get_page_by_url(url, configFile, **extra_query)
+    content = get_page_by_url(url, configFile, **extra_query)
+    return content
 
 #Returns a URL with the subresource tacked on and a complete set of query parameters
 def standardizeOptions(url, options, **extra_query):
@@ -454,6 +477,6 @@ def get_paging(configFile, section, options, **extra_query):
 
 def load_pages_json(pages):
     data = []
-    for l in pages:
-        data += json.loads(l)
+    for p in pages:
+        data += json.loads(p)
     return data

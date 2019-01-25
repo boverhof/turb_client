@@ -2,7 +2,7 @@
 # $Id: ws_test_suite.py 8633 2015-07-16 15:47:11Z boverhof $
 # Joshua R. Boverhof, LBNL
 # See LICENSE.md for copyright notice!
-# 
+#
 #   $Author: boverhof $
 #   $Date: 2015-07-16 08:47:11 -0700 (Thu, 16 Jul 2015) $
 #   $Rev: 8633 $
@@ -25,11 +25,11 @@ class ConsumerReadTest(BaseIntegrationTestCase):
         #self.log.debug('consumers:  %d' %len(l))
         self.log.debug('consumers:  %d' %len(data))
         for d in data:
-            #self.failUnlessEqual(d.keys(), 
+            #self.failUnlessEqual(d.keys(),
             #     ['AMI', 'status', 'processID', 'instanceID', 'hostname', 'Id']
             #     )
             u = uuid.UUID(str(d))
-            
+
 
 class SimulationReadTest(BaseIntegrationTestCase):
 
@@ -37,18 +37,18 @@ class SimulationReadTest(BaseIntegrationTestCase):
         simulation_list = tss.main_list([self.config_name], func=None)
         simulation_names = map(lambda i: i['Name'], simulation_list)
         self.log.debug('simulation names %s' %simulation_names)
-        self.failUnless(set([]).issubset(simulation_names), 
+        self.failUnless(set([]).issubset(simulation_names),
                         '%s not superset' %simulation_names)
-    
+
 
 class SessionReadTest(BaseIntegrationTestCase):
 
     def test_GET_List(self):
         l = tss.main_list([self.config_name], func=None)
-        self.log.debug('simulation names %s' %l)
+        self.log.debug('simulation names %s' %map(lambda f: (f['Name'],f['Id']), l))
         self.failUnless(type(l) is list,'return type should be list')
 
-                
+
 class ApplicationReadTest(BaseIntegrationTestCase):
 
     def test_GET_List(self):

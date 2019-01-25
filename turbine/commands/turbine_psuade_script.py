@@ -11,7 +11,7 @@
 import sys,os
 import json
 import optparse
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from turbine.commands import states
 from turbine.commands.turbine_job_script import parseExtraArgs
 
@@ -180,7 +180,7 @@ def writeErrorOutputs(configFile, outputfile, status):
   outputsDict = {}
   for item in outputsList:
     if item[0] == "status":
-      print "status: %d" % status
+      print ("status: %d" % status)
       outputsDict[item[0]] = { "units" : "" , "value": status}    
     else:
       outputsDict[item[0]] = { "units" : "" , "value": 0.0};
@@ -272,11 +272,11 @@ def writeJson2Psuade(configFile, inputJson, psuadeInFilename, psuadeOutFilename)
     #print jsonInputs
     for idx in range(0, psuadeInputs.__len__()):
       if(not fuzzyEquals(psuadeInputs[idx], jsonInputs[idx], 1e-6)):
-        print "Error: inputs from sample %d do not match those returned by server." % sampleNum
-        print "Has the psuade input file changed since this job was submitted?"
-        print "psuade input \t server expectation"
+        print ("Error: inputs from sample %d do not match those returned by server." % sampleNum)
+        print ("Has the psuade input file changed since this job was submitted?")
+        print ("psuade input \t server expectation")
         for idx in range(0, psuadeInputs.__len__()):
-          print psuadeInputs[idx], jsonInputs[idx]
+          print (psuadeInputs[idx], jsonInputs[idx])
     # End Check that inputs match in psuade file and server results
       
     #advance the inpsuade past the outputs, If the job isn't complete or is in error state
@@ -300,9 +300,9 @@ def writeJson2Psuade(configFile, inputJson, psuadeInFilename, psuadeOutFilename)
         else:
           writeOutputs(configFile, status, None, psuadeOutFile)
       except Exception as e:
-        print "WARNING: converting Sample %d from json to PSUADE had the following error:" % sampleNum
-        print e.message
-        print "Attempting to recover, but Sample %d may be invalid and need to be fixed by hand." % sampleNum
+        print ("WARNING: converting Sample %d from json to PSUADE had the following error:" % sampleNum)
+        print (e.message)
+        print ("Attempting to recover, but Sample %d may be invalid and need to be fixed by hand." % sampleNum)
         writeErrorOutputs(configFile,  psuadeOutFile)
     else:
       writeErrorOutputs(configFile, psuadeOutFile, status);
