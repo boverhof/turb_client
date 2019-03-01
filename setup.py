@@ -86,7 +86,7 @@ setup(
         "scripts/turbine_consumer_list"
     ],
     install_requires=[
-        "py-dateutil >= 2.2"
+        "python-dateutil >= 2.5"
     ],
     extras_require={
         "graphs":["rpy2",],
