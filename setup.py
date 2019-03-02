@@ -58,7 +58,7 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Intended Audience :: End Users/Desktop",
-        "License :: See Accompanying license ",
+        "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Natural Language :: English",
         "Operating System :: POSIX"
