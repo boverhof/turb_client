@@ -4,7 +4,9 @@ JSON2Psuade
 
 See LICENSE.md for copyright notice!
 """
-import sys, time, os
+import sys
+import time
+import os
 #from run_turbine import *
 import json
 from configparser import ConfigParser
@@ -22,10 +24,8 @@ CP = _open_config(sys.argv[4])
 
 
 jsonFile = open(sys.argv[1], "r+")
-inputJson = json.load(jsonFile);
+inputJson = json.load(jsonFile)
 jsonFile.close()
 
-writeJson2CSV(CP, inputJson, sys.argv[2], sys.argv[3]); 
-                 #psuadeInFile, psuadeOutFile)
-
-
+writeJson2CSV(CP, inputJson, sys.argv[2], sys.argv[3])
+# psuadeInFile, psuadeOutFile)

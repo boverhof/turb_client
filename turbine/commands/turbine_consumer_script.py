@@ -9,8 +9,12 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import json, optparse,sys
-import time, dateutil.parser, datetime
+import json
+import optparse
+import sys
+import time
+import dateutil.parser
+import datetime
 from urllib.error import HTTPError
 from turbine.commands import add_options, post_page, put_page, \
     get_page, get_page_by_url, get_paging, _open_config, load_pages_json, \
@@ -24,9 +28,9 @@ def main(args=None, func=_print_numbered_lines):
     """List all Consumer resources, by default print in human readable format.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
-             description=main.__doc__)
+                               description=main.__doc__)
 
-    #add_options(op)
+    # add_options(op)
     op.add_option("-v", "--verbose",
                   action="store_true", dest="verbose",
                   help="verbose output")
@@ -59,8 +63,9 @@ def main(args=None, func=_print_numbered_lines):
     page = get_page(configFile, SECTION, **query)
     data = json.loads(page)
     if options.json:
-        func=_print_as_json
-    if func: func(data)
+        func = _print_as_json
+    if func:
+        func(data)
     return data
 
 
@@ -68,16 +73,17 @@ def main_get_consumer_by_guid(args=None, func=_print_page):
     """Retrieves consumer by GUID
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONSUMER_GUID CONFIG_FILE",
-             description=main.__doc__)
+                               description=main.__doc__)
 
     (options, args) = op.parse_args(args)
     if len(args) != 2:
         op.error('expecting 2 arguments')
     configFile = _open_config(args[1])
-    query = dict(subresource='/%s' %args[0])
+    query = dict(subresource='/%s' % args[0])
     page = get_page(configFile, SECTION, **query)
     data = json.loads(page)
-    if func: func(data)
+    if func:
+        func(data)
     return data
 
 
@@ -87,15 +93,16 @@ def main_log(args=None, func=_print_page):
     is not available in all deployments.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
-             description=main_log.__doc__)
+                               description=main_log.__doc__)
 
     (options, args) = op.parse_args(args)
     if len(args) != 2:
         op.error('expecting 2 arguments')
     configFile = _open_config(args[1])
-    query = dict(subresource='/%s/log' %args[0])
+    query = dict(subresource='/%s/log' % args[0])
     page = get_page(configFile, SECTION, **query)
-    if func: func(page)
+    if func:
+        func(page)
     return page
 
 
@@ -105,9 +112,9 @@ def main_get_config(args=None, func=_print_page):
     (deployment specific).  The AWS EC2 orchestator handles auto-scaling of instances.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
-             description=main_get_config.__doc__)
+                               description=main_get_config.__doc__)
 
-    #add_options(op)
+    # add_options(op)
     op.add_option("-v", "--verbose",
                   action="store_true", dest="verbose",
                   help="verbose output")
@@ -119,7 +126,8 @@ def main_get_config(args=None, func=_print_page):
     configFile = _open_config(args[0])
     query = dict(subresource='/config')
     page = get_page(configFile, SECTION, **query)
-    if func: func(page)
+    if func:
+        func(page)
     return page
 
 
@@ -129,9 +137,9 @@ def main_update_config_floor(args=None, func=_print_page):
     the AWS EC2 deployment.  By default prints entire resultant configuration in JSON.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] INT CONFIG_FILE",
-             description=main_update_config_floor.__doc__)
+                               description=main_update_config_floor.__doc__)
 
-    #add_options(op)
+    # add_options(op)
     op.add_option("-v", "--verbose",
                   action="store_true", dest="verbose",
                   help="verbose output")
@@ -143,8 +151,10 @@ def main_update_config_floor(args=None, func=_print_page):
     configFile = _open_config(args[1])
     query = dict(subresource='/config')
 
-    page = put_page(configFile, SECTION, json.dumps(dict(floor=int(args[0]))), **query)
-    if func: func(page)
+    page = put_page(configFile, SECTION, json.dumps(
+        dict(floor=int(args[0]))), **query)
+    if func:
+        func(page)
     return page
 
 
@@ -153,9 +163,9 @@ def main_update_config_instanceType(args=None, func=_print_page):
     relevant for the AWS EC2 deployment.  By default prints entire resultant configuration in JSON.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] [t1.micro | m1.small | c1.medium] CONFIG_FILE",
-             description=main_update_config_instanceType.__doc__)
+                               description=main_update_config_instanceType.__doc__)
 
-    #add_options(op)
+    # add_options(op)
     op.add_option("-v", "--verbose",
                   action="store_true", dest="verbose",
                   help="verbose output")
@@ -166,9 +176,12 @@ def main_update_config_instanceType(args=None, func=_print_page):
 
     configFile = _open_config(args[1])
     query = dict(subresource='/config')
-    page = put_page(configFile, SECTION, json.dumps(dict(instance=args[0])), **query)
-    if func: func(page)
+    page = put_page(configFile, SECTION, json.dumps(
+        dict(instance=args[0])), **query)
+    if func:
+        func(page)
     return page
+
 
 if __name__ == "__main__":
     main()

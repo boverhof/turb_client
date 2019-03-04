@@ -5,7 +5,8 @@ psuade2JSON
 See LICENSE.md for copyright notice!
 """
 
-import sys,os
+import sys
+import os
 import json
 import optparse
 import sys
@@ -20,7 +21,6 @@ if(sys.argv.__len__() < 4):
     exit(1)
 
 
-
 CP = _open_config(sys.argv[3])
 
 certifyConfig(CP)
@@ -33,6 +33,3 @@ outfile = open(sys.argv[2], "w+")
 outJsonString = json.dump(inputsJson, outfile, indent=2)
 
 outfile.close()
-
-
-

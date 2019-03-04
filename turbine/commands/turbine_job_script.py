@@ -9,7 +9,11 @@
 #   $Rev: 6627 $
 #
 ###########################################################################
-import urllib.request,urllib.error,csv,sys,os
+import urllib.request
+import urllib.error
+import csv
+import sys
+import os
 import logging as _log
 import json
 import optparse
@@ -22,21 +26,24 @@ from turbine.utility import basic_job_stats
 
 SECTION = "Job"
 
+
 def write_basic_job_info(fd, d, verbose=False):
     """
     """
     skip = tuple()
-    if not verbose: skip = ("Input","Output")
+    if not verbose:
+        skip = ("Input", "Output")
     for k in filter(lambda i: i not in skip, d.keys()):
-       print("%12s     %s" %(k,d[k]))
+        print("%12s     %s" % (k, d[k]))
     basic_job_stats(sys.stdout, **d)
+
 
 def main(args=None, func=_print_as_json):
     """Queries for job resources based on select criteria, by default prints JSON array of jobs.
     """
     global states
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
-             description=main.__doc__)
+                               description=main.__doc__)
 
     op.add_option("-j", "--jobid",
                   action="store", dest="subresource", default=None,
@@ -46,7 +53,7 @@ def main(args=None, func=_print_as_json):
                   help="Simulation Name")
     op.add_option("-x", "--state",
                   action="store", dest="state", default=None,
-                  help="Job Status to query: %s" %list(states))
+                  help="Job Status to query: %s" % list(states))
     op.add_option("-c", "--consumer",
                   action="store", dest="consumer", default=None,
                   help="Consumer GUID to query")
@@ -61,12 +68,18 @@ def main(args=None, func=_print_as_json):
     configFile = _open_config(args[0])
 
     query = {}
-    if options.session: query['session'] = options.session
-    if options.simulation: query['simulation'] = options.simulation
-    if options.subresource: query['subresource'] = options.subresource
-    if options.state: query['state'] = options.state
-    if options.consumer: query['consumer'] = options.consumer
-    if options.verbose: query['verbose'] = options.verbose
+    if options.session:
+        query['session'] = options.session
+    if options.simulation:
+        query['simulation'] = options.simulation
+    if options.subresource:
+        query['subresource'] = options.subresource
+    if options.state:
+        query['state'] = options.state
+    if options.consumer:
+        query['consumer'] = options.consumer
+    if options.verbose:
+        query['verbose'] = options.verbose
 
     if options.subresource:
         page = get_page(configFile, SECTION, **query)
@@ -81,8 +94,8 @@ def main(args=None, func=_print_as_json):
     try:
         pages = get_paging(configFile, SECTION, options, **query)
     except HTTPError as ex:
-        print (ex)
-        print (ex.readlines())
+        print(ex)
+        print(ex.readlines())
         return
 
     #states = set(['submit', 'create', 'setup', 'running', 'success', 'warning', 'error', 'expired', 'cancel', 'terminate'])
@@ -93,35 +106,39 @@ def main(args=None, func=_print_as_json):
         states = states.union(fstates)
 
     if options.basic:
-        print ("Total JOBS: %d" %len(all))
+        print("Total JOBS: %d" % len(all))
         for state in states:
-            if options.state is not None and options.state != state: continue
+            if options.state is not None and options.state != state:
+                continue
             flist = filter(lambda e: e['State'] == state, all)
-            print ("\t%s JOBS: %d" %(state.upper(), len(flist)))
+            print("\t%s JOBS: %d" % (state.upper(), len(flist)))
             if options.verbose:
                 for i in flist:
                     print
-                    for k,v in i.items():
-                        print ("\t%12s -- %s" %(k,v))
+                    for k, v in i.items():
+                        print("\t%12s -- %s" % (k, v))
             else:
-                print ("\t%s" %map(lambda m: m['Id'], flist))
+                print("\t%s" % map(lambda m: m['Id'], flist))
     elif func is not None and callable(func):
         _print_as_json(all)
 
     return all
 
-#Extra Args are passed as string unless a special case is
-#provided within parseExtraArgs
-def parseExtraArgs(configFile):
-  extraArgs = {}
-  if(configFile.has_section("ExtraArgs")):
-    extraArgs.update(configFile.items("ExtraArgs"))
-    if configFile.has_option("ExtraArgs", "Initialize"):
-      extraArgs["Initialize"] = configFile.getboolean("ExtraArgs", "Initialize")
-    if configFile.has_option("ExtraArgs", "Reset"):
-      extraArgs["Reset"] = configFile.getboolean("ExtraArgs", "Reset")
+# Extra Args are passed as string unless a special case is
+# provided within parseExtraArgs
 
-  return extraArgs
+
+def parseExtraArgs(configFile):
+    extraArgs = {}
+    if(configFile.has_section("ExtraArgs")):
+        extraArgs.update(configFile.items("ExtraArgs"))
+        if configFile.has_option("ExtraArgs", "Initialize"):
+            extraArgs["Initialize"] = configFile.getboolean(
+                "ExtraArgs", "Initialize")
+        if configFile.has_option("ExtraArgs", "Reset"):
+            extraArgs["Reset"] = configFile.getboolean("ExtraArgs", "Reset")
+
+    return extraArgs
 
 
 if __name__ == "__main__":

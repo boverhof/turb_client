@@ -2,14 +2,14 @@
 # $Id: rpython.py 4480 2013-12-20 23:20:21Z boverhof $
 # Dan Gunter <dkgunter@lbl.gov>
 # See LICENSE.md for copyright notice!
-# 
+#
 #   $Author: boverhof $
 #   $Date: 2013-12-20 15:20:21 -0800 (Fri, 20 Dec 2013) $
 #   $Rev: 4480 $
 #
 # Provide a Python API for easy interfacing with R.
 # Depends on RPy2: http://rpy.sourceforge.net/rpy2.html
-# 
+#
 ###########################################################################
 # System imports
 import datetime
@@ -26,35 +26,36 @@ base = importr('base')
 # Import NetLogger R package
 #nlr = importr('netlogger')
 
-R = robjects.r #: Running R instance
+R = robjects.r  # : Running R instance
+
 
 class COLTYPE:
     """Enumeration of column types.
     """
-    INT = 1 #: Python int
-    FLOAT = 2 #: floats
-    STR = 3 #: strings
-    DATE = 4 #: float or datetime.datetime
-    FACTOR = 5 #: strings
-    BOOL = 6 #: bool
+    INT = 1  # : Python int
+    FLOAT = 2  # : floats
+    STR = 3  # : strings
+    DATE = 4  # : float or datetime.datetime
+    FACTOR = 5  # : strings
+    BOOL = 6  # : bool
 
     # Empty values
     NONE = [None,
-            0, # INT
-            0.0, # FLOAT
-            "", # STR
-            datetime.datetime(1970, 1, 1), #DATE
-            "", # FACTOR
-            True # BOOL
+            0,  # INT
+            0.0,  # FLOAT
+            "",  # STR
+            datetime.datetime(1970, 1, 1),  # DATE
+            "",  # FACTOR
+            True  # BOOL
             ]
-    
+
     @staticmethod
     def from_value(value, factors=True):
         """Return an inferred column type.
         """
         if isinstance(value, int):
             return COLTYPE.INT
-        if isinstance(value,float) or isinstance(value,long):
+        if isinstance(value, float) or isinstance(value, long):
             return COLTYPE.FLOAT
         if isinstance(value, datetime.datetime):
             return COLTYPE.DATE
@@ -62,33 +63,36 @@ class COLTYPE:
             return COLTYPE.BOOL
         return (COLTYPE.STR, COLTYPE.FACTOR)[factors]
 
+
 def get_coltypes(values):
     return map(COLTYPE.from_value, values)
+
 
 def datetime_to_sec(dt):
     """Convert datetime object to number of seconds since 1/1/1970.
 
     Args:
       dt - Datetime object
-      
+
     Return:
       Seconds (as a float) since the UNIX epoch.
     """
     return time.mktime(dt.timetuple()) + dt.microsecond/1e6
-    
+
+
 def make_data_frame(colnames, coltypes, rows=None, cols=None):
     """Make a data frame from a list of rows or columns and definitions
     (name and type) of the columns found in each row.
-    
+
     See COLTYPE documentation for a description of accepted input types
     for each column type.
-    
+
     Args:
       - rows (object[][]): Rows of data, each of the same length and types
       - cols (object[][]): Columns of data, each of the same length
       - colnames (str[]): Name of each column
       - column_type (COLTYPE[]): Type of each column. 
-         
+
     Return:
       - robjects.DataFrame: Data frame
 
@@ -103,7 +107,7 @@ def make_data_frame(colnames, coltypes, rows=None, cols=None):
     if rows is not None:
         columns = rlc.TaggedList([])
         for i in range(len(rows[0])):
-            col = [ ]
+            col = []
             for row in rows:
                 col.append(row[i])
             # convert column to R type
@@ -122,9 +126,10 @@ def make_data_frame(colnames, coltypes, rows=None, cols=None):
     gc.collect()
     return(df)
 
+
 def make_rvector(col, ct=COLTYPE.FLOAT):
     """Make and return an R vector for data in `col` of COLTYPE ct.
-    
+
     Returns:
       robjects.Vector
     Raises:
@@ -143,7 +148,7 @@ def make_rvector(col, ct=COLTYPE.FLOAT):
         vec = robjects.BoolVector(col)
     elif ct == COLTYPE.FACTOR:
         # conversion will happen automatically
-        vec = robjects.StrVector(col) 
+        vec = robjects.StrVector(col)
     elif ct == COLTYPE.DATE:
         field = col[0]
         if isinstance(field, datetime.datetime):
@@ -158,13 +163,14 @@ def make_rvector(col, ct=COLTYPE.FLOAT):
         vec = robjects.FloatVector(tcol)
     else:
         raise TypeError("Unknown type '%s' for column %d, '%s'." % (
-                                type(field), i, colnames[i]))
+            type(field), i, colnames[i]))
     return(vec)
+
 
 def cursor_data_frame(cursor, column_types={}):
     """Iterate through cursor and return an R DataFrame object
     that represents its rows.
-    
+
     It is assumed that all records have the same structure.
     If a record is missing any fields, it will be silently ignored.
 
@@ -172,7 +178,7 @@ def cursor_data_frame(cursor, column_types={}):
     original size is required. All records will be loaded
     into memory, then duplicated by make_data_frame(), and copied
     again by R into the DataFrame object itself.
-    
+
     Args:
       - cursor (iterable): The 'cursor' is anything that supports the iterator
                  protocol. The expected datatype returned at each iteration is
@@ -185,19 +191,19 @@ def cursor_data_frame(cursor, column_types={}):
     Exceptions:
       - StopIteration: If there is no data in the cursor.
     """
-    table = [ ]
-    colnames, coltypes = [ ], [ ]
+    table = []
+    colnames, coltypes = [], []
     # Create table from iterated rows.
-    first = True 
+    first = True
     for row in cursor:
-        if first: # use this because .next() won't work on lists            
+        if first:  # use this because .next() won't work on lists
             # Place column types in same order as 'colnames'
             for name in row.keys():
                 coltypes.append(column_types.get(name,
                                                  COLTYPE.from_value(row[name])))
                 colnames.append(name)
             first = False
-        table_row, ignore = [ ], False
+        table_row, ignore = [], False
         for i, name in enumerate(colnames):
             try:
                 value = row[name]

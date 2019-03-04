@@ -7,7 +7,8 @@ Takes a set of JSON result from the server and turns it back into an input set f
 See LICENSE.md for copyright notice!
 """
 
-import sys,os
+import sys
+import os
 import json
 
 if(sys.argv.__len__() != 3):

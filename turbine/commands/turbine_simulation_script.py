@@ -9,7 +9,13 @@
 #   $Rev: 10089 $
 #
 ###########################################################################
-import urllib.request,urllib.error,csv,sys,os,json,uuid
+import urllib.request
+import urllib.error
+import csv
+import sys
+import os
+import json
+import uuid
 import logging as _log
 import optparse
 from urllib.error import HTTPError
@@ -25,25 +31,26 @@ def _print_json(data, verbose=False, out=sys.stdout):
     else:
         print(data, end="", file=out)
 
+
 def _print_simulation_list(all, verbose=False, out=sys.stdout):
-    print("Total Simulations: %d" %len(all), file=out)
+    print("Total Simulations: %d" % len(all), file=out)
     for sim in all:
         if not verbose:
-            print("\t%s" %(sim['Name']), file=out)
+            print("\t%s" % (sim['Name']), file=out)
             continue
         print("=="*30, file=out)
         print("=="*30, file=out)
-        print("%12s" %(sim['Name']), file=out)
+        print("%12s" % (sim['Name']), file=out)
         if verbose:
-            for k,v in sim.items():
-                print("\t%12s: %12s" %(k,v), file=out)
+            for k, v in sim.items():
+                print("\t%12s: %12s" % (k, v), file=out)
 
 
 def main_create(args=None):
     """Create an empty Simulation Resource
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME|GUID APPLICATION_NAME CONFIG_FILE",
-             description=main_create.__doc__)
+                               description=main_create.__doc__)
     op.add_option("-s", "--simulation",
                   action="store", dest="simulation_name", default=None,
                   help="override versioning system and specify the GUID identifier for a simulation ")
@@ -70,10 +77,12 @@ def main_create(args=None):
         simulation_name = subresource
 
     kw = dict(subresource=subresource)
-    data = json.dumps(dict(Application=application, StagedInputs=[], Name=simulation_name))
+    data = json.dumps(dict(Application=application,
+                           StagedInputs=[], Name=simulation_name))
 
     try:
-        data = put_page(cp, SECTION, data, content_type='application/json', **kw)
+        data = put_page(cp, SECTION, data,
+                        content_type='application/json', **kw)
     except HTTPError as ex:
         _log.error(ex)
         if hasattr(ex, 'readlines'):
@@ -89,7 +98,7 @@ def main_update(args=None):
     """Update simulation by essentially doing a PUT with the specified file to the resource or optionally sub-resource.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME|GUID FILE_NAME CONFIG_FILE",
-             description=main_update.__doc__)
+                               description=main_update.__doc__)
 
     op.add_option("-r", "--resource",
                   action="store", dest="resource",
@@ -99,7 +108,7 @@ def main_update(args=None):
     if len(args) != 3:
         op.error('expecting 3 arguments')
 
-    log = _log.getLogger('%s.main_update' %__name__)
+    log = _log.getLogger('%s.main_update' % __name__)
     log.debug(args)
 
     file_name = args[1]
@@ -114,7 +123,7 @@ def main_update(args=None):
     kw = {}
     out = sys.stdout
 
-    kw['subresource'] = '%s/input/%s' %(simulation, options.resource)
+    kw['subresource'] = '%s/input/%s' % (simulation, options.resource)
 
     contents = open(file_name, 'rb').read()
     try:
@@ -124,7 +133,7 @@ def main_update(args=None):
         if hasattr(ex, 'readlines'):
             _log.debug("".join(ex.readlines()))
         else:
-           _log.debug("".join(ex.read()))
+            _log.debug("".join(ex.read()))
         raise
     except urllib.error.URLError as ex:
         _log.error("URLError :  %s", ex.reason)
@@ -137,9 +146,9 @@ def main_get(args=None, func=_print_json):
     """Retrieves the Simulation resource, by default prints as JSON.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] SIMULATION_NAME CONFIG_FILE",
-             description=main_get.__doc__)
+                               description=main_get.__doc__)
 
-    #add_options(op)
+    # add_options(op)
     op.add_option("-r", "--resource",
                   action="store", dest="resource",
                   help="return only the specified input subresource")
@@ -155,19 +164,19 @@ def main_get(args=None, func=_print_json):
     simulation = args[0]
 
     query = {}
-    fileName = 'simulation_%s' %(simulation)
+    fileName = 'simulation_%s' % (simulation)
     if options.resource:
-        fileName += '_%s' %options.resource
-        query['subresource'] = '%s/input/%s' %(simulation,options.resource)
+        fileName += '_%s' % options.resource
+        query['subresource'] = '%s/input/%s' % (simulation, options.resource)
         data = get_page(configFile, SECTION, **query)
     else:
-        query['subresource'] = '%s' %(simulation)
+        query['subresource'] = '%s' % (simulation)
         data = json.loads(get_page(configFile, SECTION, **query))
 
     if func:
         out = sys.stdout
         if options.save:
-            out = open('%s.txt' %fileName, 'w')
+            out = open('%s.txt' % fileName, 'w')
         func(data, out=out)
 
     return data
@@ -177,7 +186,7 @@ def main_list(args=None, func=_print_simulation_list):
     """Retrieves list of all simulations, by default prints in human readable format.
     """
     op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
-             description=main_list.__doc__)
+                               description=main_list.__doc__)
     add_options(op)
     add_json_option(op)
     (options, args) = op.parse_args(args)
@@ -190,7 +199,8 @@ def main_list(args=None, func=_print_simulation_list):
     configFile = _open_config(args[0])
     query = {}
 
-    if options.verbose: query['verbose'] = options.verbose
+    if options.verbose:
+        query['verbose'] = options.verbose
 
     options.page = 1
     content = get_page(configFile, SECTION, **query)
@@ -205,7 +215,7 @@ def main_delete(args=None, func=_print_page):
     """Delete simulation
     """
     op = optparse.OptionParser(usage="USAGE: %prog SIMULATION_NAME  CONFIG_FILE",
-             description=main_delete.__doc__)
+                               description=main_delete.__doc__)
 
     (options, args) = op.parse_args(args)
     if len(args) < 1:
@@ -220,14 +230,16 @@ def main_delete(args=None, func=_print_page):
     log = _log.getLogger(__name__)
 
     try:
-        page = delete_page(configFile, SECTION, subresource='%s' %simulationName)
+        page = delete_page(configFile, SECTION,
+                           subresource='%s' % simulationName)
     except HTTPError as ex:
         log.error(ex)
         log.error(ex.readlines())
         raise
-    log.debug("PAGE: %s" %page)
-    #return int(page)
+    log.debug("PAGE: %s" % page)
+    # return int(page)
     return page
+
 
 if __name__ == "__main__":
     main_list()

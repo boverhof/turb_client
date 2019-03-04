@@ -8,13 +8,20 @@
 #   $Rev: 4480 $
 #
 ###########################################################################
-import unittest, uuid, urllib.request,urllib.error
-import os, time, json, tempfile, logging
+import unittest
+import uuid
+import urllib.request
+import urllib.error
+import os
+import time
+import json
+import tempfile
+import logging
 from base_test_case import BaseIntegrationTestCase
 from turbine.commands import turbine_simulation_script as tsim
 from turbine.commands import turbine_job_script as tjob
 
-#class SimulationReadTest(BaseIntegrationTestCase):
+# class SimulationReadTest(BaseIntegrationTestCase):
 #
 #    def test_GET_List(self):
 #        simulation_list = tss.main_list([self.config_name], func=None)
@@ -27,11 +34,11 @@ from turbine.commands import turbine_job_script as tjob
 class SimulationWriteTest(BaseIntegrationTestCase):
 
     _module_name = 'simulation_test_suite'
-    _sim_name = 'test-%s' %(uuid.uuid4())
+    _sim_name = 'test-%s' % (uuid.uuid4())
 
     @property
     def simulation_name(self):
-        #if getattr(self, '_sim_name', None) is None:
+        # if getattr(self, '_sim_name', None) is None:
         #    self._sim_name = 'test-%s' %(uuid.uuid4())
         return self._sim_name
 
@@ -53,9 +60,9 @@ class SimulationWriteTest(BaseIntegrationTestCase):
         #simulation = self.getOption("simulation")
         #log.debug("setUp:   simulation '%s'" %simulation)
 
-        #try:
+        # try:
         #    data = tsim.main_get([simulation, self.config_name], func=None)
-        #except urllib.error.HTTPError:
+        # except urllib.error.HTTPError:
         #    self.create_test_simulation()
         #    data = tsim.main_get([simulation, self.config_name], func=None)
 
@@ -66,9 +73,10 @@ class SimulationWriteTest(BaseIntegrationTestCase):
         """ NOTE:
         """
         config_path = self.simulation_config
-        self.failUnless(os.path.isfile(config_path), 'No File "%s"' %config_path)
+        self.failUnless(os.path.isfile(config_path),
+                        'No File "%s"' % config_path)
         #defaults_path = self.simulation_defaults
-        #self.failUnless(os.path.isfile(defaults_path))
+        # self.failUnless(os.path.isfile(defaults_path))
         app_path = self.simulation_file
         self.failUnless(os.path.isfile(app_path))
 
@@ -79,25 +87,32 @@ class SimulationWriteTest(BaseIntegrationTestCase):
         self.failUnlessEqual(len(data), 4, data)
 
         self.log.debug('PUT sinter config')
-        self.failUnless(tsim.main_update(['-r', 'configuration', name, config_path, self.config_name]))
+        self.failUnless(tsim.main_update(
+            ['-r', 'configuration', name, config_path, self.config_name]))
 
         self.log.debug('PUT Application file')
-        self.failUnless(tsim.main_update(['-r', 'aspenfile', name, app_path, self.config_name]))
+        self.failUnless(tsim.main_update(
+            ['-r', 'aspenfile', name, app_path, self.config_name]))
 
         data = tsim.main_get([name, self.config_name], func=None)
         self.failUnlessEqual(len(data), 4)
         self.failUnlessEqual(type(data), dict)
 
-        data = tsim.main_get(['-r', 'configuration', name, self.config_name], func=None)
+        data = tsim.main_get(
+            ['-r', 'configuration', name, self.config_name], func=None)
         with open(config_path, encoding='utf-8') as fd:
-            self.failUnlessEqual(data, fd.read(), 'sinter config file does not match')
+            self.failUnlessEqual(
+                data, fd.read(), 'sinter config file does not match')
 
-        data = tsim.main_get(['-r', 'aspenfile', name, self.config_name], func=None)
+        data = tsim.main_get(
+            ['-r', 'aspenfile', name, self.config_name], func=None)
         # NOTE: disable universal newlines handling on Python 3 newline=''
         with open(app_path, encoding='latin-1', newline='') as fd:
             fdata = fd.read()
-            self.failUnlessEqual(len(data), len(fdata), 'length aspenfile does not match')
+            self.failUnlessEqual(len(data), len(
+                fdata), 'length aspenfile does not match')
             self.failUnlessEqual(data, fdata, 'aspenfile does not match')
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
