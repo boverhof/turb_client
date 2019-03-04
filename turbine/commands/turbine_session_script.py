@@ -43,7 +43,7 @@ def main_list(args=None, func=_print_numbered_lines):
     try:
         configFile = _open_config(*args)
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     if options.json:
         func = _print_as_json
@@ -79,7 +79,7 @@ def main_jobs_status(args=None, func=_print_as_json):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     data = jobs_status(configFile, sessionid)
     if func:
@@ -106,7 +106,7 @@ def main_create_session(args=None, func=_print_page):
     try:
         configFile = _open_config(*args)
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     page = create_session(configFile)
     data = uuid.UUID(page)
@@ -143,7 +143,7 @@ def main_create_jobs(args=None, func=_print_page):
     try:
         configFile = _open_config(*args[2:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     log = _log.getLogger(__name__)
     log.debug("main_create_jobs")
@@ -187,7 +187,7 @@ def main_stop_jobs(args=None):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     print(stop_jobs(configFile, sessionid))
 
@@ -206,7 +206,7 @@ def main_delete(args=None, func=_print_page):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     log = _log.getLogger(__name__)
 
@@ -214,7 +214,6 @@ def main_delete(args=None, func=_print_page):
         page = delete_page(configFile, SECTION, subresource='%s' % sessionid)
     except HTTPError as ex:
         log.error(ex)
-        log.error(ex.readlines())
         raise
     log.debug("PAGE: %s" % page)
     return int(page)
@@ -238,7 +237,7 @@ def main_kill_jobs(args=None, func=_print_page):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     page = kill_jobs(configFile, sessionid)
     #data = json.load(page)
@@ -271,7 +270,7 @@ def main_start_jobs(args=None, func=_print_page):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     _log.getLogger(__name__).debug("main_start_jobs")
     page = start_jobs(configFile, sessionid)
@@ -338,7 +337,7 @@ def main_get_results(args=None, func=_print_page):
     try:
         cp = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     data = get_results(cp, sessionid, options)
     if func:
@@ -361,7 +360,7 @@ def main_session_stats(args=None):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     pages = get_paging(configFile, SECTION, options, subresource=sessionid)
     data = load_pages_json(pages)
@@ -419,7 +418,7 @@ def main_session_graphs(args=None):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     # Fetch data
     pages = get_paging(configFile, SECTION, options, subresource=sessionid)

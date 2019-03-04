@@ -207,7 +207,7 @@ def main_list(args=None, func=_print_simulation_list):
     data = load_pages_json([content])
     if func:
         func(data, options.verbose)
-#    print data
+
     return data
 
 
@@ -225,7 +225,7 @@ def main_delete(args=None, func=_print_page):
     try:
         configFile = _open_config(*args[1:])
     except Exception as ex:
-        op.error(ex.Message)
+        op.error(ex)
 
     log = _log.getLogger(__name__)
 
@@ -234,10 +234,9 @@ def main_delete(args=None, func=_print_page):
                            subresource='%s' % simulationName)
     except HTTPError as ex:
         log.error(ex)
-        log.error(ex.readlines())
         raise
     log.debug("PAGE: %s" % page)
-    # return int(page)
+
     return page
 
 

@@ -70,11 +70,11 @@ def runtime_stats(all_jobs, startName, endName):
         t_min = min(queue_l)
 
         # Can't get min and max of dateutils so sort
-        last_to_finish = map(
-            lambda i: dateutil.parser.parse(i[endName]), all_jobs)
+        last_to_finish = list(map(
+            lambda i: dateutil.parser.parse(i[endName]), all_jobs))
         last_to_finish.sort()
-        first_to_setup = map(
-            lambda i: dateutil.parser.parse(i[startName]), all_jobs)
+        first_to_setup = list(map(
+            lambda i: dateutil.parser.parse(i[startName]), all_jobs))
         first_to_setup.sort()
         total_time = last_to_finish[-1] - first_to_setup[0]
 
@@ -134,8 +134,7 @@ def basic_session_stats(fd, all, verbose=True):
         if c > 0 or verbose:
             print("\t%12s -- %d" % (s, c), file=fd)
 
-    all_l = filter(lambda i: (i.has_key("Running") and i.has_key(
-        "Setup") and i.has_key("Finished")), all)
+    all_l = filter(lambda i: ("Running" in i and "Setup" in i and "Finished" in i), all)
     success_l = filter(lambda i: (i['State'] == 'success'), all_l)
     error_l = filter(lambda i: i['State'] == 'error', all_l)
 
@@ -157,7 +156,7 @@ def basic_session_stats(fd, all, verbose=True):
         print("\t%12s -- %s" % ('mean', t_mean), file=fd)
         print("\t%12s -- %s" % ('min', t_min), file=fd)
 
-    all_l = filter(lambda i: i.has_key('Running'), all_l)
+    all_l = filter(lambda i: ('Running' in i), all_l)
     queue_l = map(lambda i: dateutil.parser.parse(
         i['Running']) - dateutil.parser.parse(i['Setup']), all_l)
 
@@ -187,11 +186,11 @@ def basic_session_stats(fd, all, verbose=True):
 
     # if len(success_l) < 2: return
 
-    last_to_finish = map(
-        lambda i: dateutil.parser.parse(i['Finished']), success_l)
+    last_to_finish = list(map(
+        lambda i: dateutil.parser.parse(i['Finished']), success_l))
     last_to_finish.sort()
-    first_to_setup = map(
-        lambda i: dateutil.parser.parse(i['Setup']), success_l)
+    first_to_setup = list(map(
+        lambda i: dateutil.parser.parse(i['Setup']), success_l))
     first_to_setup.sort()
 
     try:
@@ -207,7 +206,7 @@ def basic_session_stats(fd, all, verbose=True):
               (tail, len(all_l)), file=fd)
         print("\t%10s %18s %18s %18s %18s" %
               ("Id", "Queue", "Setup", "Runtime", "Total"), file=fd)
-        all_times = map(lambda i: (i['Id'],
+        all_times = list(map(lambda i: (i['Id'],
                                    dateutil.parser.parse(
                                        i['Setup'])-dateutil.parser.parse(i['Submit']),
                                    dateutil.parser.parse(
@@ -215,14 +214,10 @@ def basic_session_stats(fd, all, verbose=True):
                                    dateutil.parser.parse(
                                        i['Finished'])-dateutil.parser.parse(i['Running']),
                                    dateutil.parser.parse(i['Finished'])-dateutil.parser.parse(i['Submit'])),
-                        success_l)
+                        success_l))
         all_times.sort(lambda x, y: int((y[3]-x[3]).total_seconds()))
         for i in all_times[:tail]:
             print('\t%10s -- %15s -- %15s -- %15s -- %15s' % i, file=fd)
-
-    #error_l = filter(lambda i: i.has_key('Running') and i.has_key('Finished'), all_l)
-    # queue_l = map(lambda i: dateutil.parser.parse(i['Finished']) -
-    #    dateutil.parser.parse(i['Running']), error_l)
 
     if error_l:
         print("Total Errors (%d)" % len(error_l), file=fd)
@@ -266,7 +261,7 @@ def basic_session_stats(fd, all, verbose=True):
         k = i['Consumer']
         finished = dateutil.parser.parse(i['Finished'])
         setup = dateutil.parser.parse(i['Setup'])
-        if not total_d.has_key(k):
+        if k not in total_d:
             count_d[i['Consumer']] = 0
             total_d[i['Consumer']] = datetime.timedelta(0)
             setup_d[i['Consumer']] = setup
