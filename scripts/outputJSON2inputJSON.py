@@ -11,7 +11,7 @@ import sys,os
 import json
 
 if(sys.argv.__len__() != 3):
-    print "USAGE: outputJSON2inputJSON.py outputJSONFile inputJSONFile"
+    print("USAGE: outputJSON2inputJSON.py outputJSONFile inputJSONFile")
     sys.exit(1)
 
 infile = open(sys.argv[1], "r+")

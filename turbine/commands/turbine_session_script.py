@@ -504,20 +504,20 @@ def session_perf_from_json(data):
     # first state doesn't subtract other deltas
     state = states[1]
     prev = [(_dparse(data[row][state]) - m[1][row]).total_seconds()
-            for row in xrange(n)]
+            for row in range(n)]
     m.append(prev)
     # middle to last state
     for col in range(2, len(states)):
         state = states[col]
         column = [(_dparse(data[row][state]) - m[1][row]).total_seconds()
                   - prev[row]
-                     for row in xrange(n)]
+                     for row in range(n)]
         m.append(column)
-        prev = [prev[i] + column[i] for i in xrange(n)]
+        prev = [prev[i] + column[i] for i in range(n)]
     # add totals for last state
     state = states[-1]
     m.append([(_dparse(data[row][state]) - m[1][row]).total_seconds()
-                 for row in xrange(n)])
+                 for row in range(n)])
     #for row in range(n-10,n):
     #    for col in m:
     #        sys.stdout.write("{0} ".format(col[row]))

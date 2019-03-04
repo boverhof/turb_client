@@ -3,7 +3,7 @@
 # $Id: turbine_job_script.py 6627 2014-10-09 23:00:13Z aaelbashandy $
 # Joshua R. Boverhof, LBNL
 # See LICENSE.md for copyright notice!
-# 
+#
 #   $Author: aaelbashandy $
 #   $Date: 2014-10-09 16:00:13 -0700 (Thu, 09 Oct 2014) $
 #   $Rev: 6627 $
@@ -28,29 +28,29 @@ def write_basic_job_info(fd, d, verbose=False):
     skip = tuple()
     if not verbose: skip = ("Input","Output")
     for k in filter(lambda i: i not in skip, d.keys()):
-       print >>fd, "%12s     %s" %(k,d[k])
+       print("%12s     %s" %(k,d[k]))
     basic_job_stats(sys.stdout, **d)
 
 def main(args=None, func=_print_as_json):
     """Queries for job resources based on select criteria, by default prints JSON array of jobs.
     """
     global states
-    op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE", 
+    op = optparse.OptionParser(usage="USAGE: %prog [options] CONFIG_FILE",
              description=main.__doc__)
 
-    op.add_option("-j", "--jobid", 
+    op.add_option("-j", "--jobid",
                   action="store", dest="subresource", default=None,
                   help="JOB ID")
-    op.add_option("-n", "--sim", 
+    op.add_option("-n", "--sim",
                   action="store", dest="simulation", default=None,
                   help="Simulation Name")
-    op.add_option("-x", "--state", 
+    op.add_option("-x", "--state",
                   action="store", dest="state", default=None,
                   help="Job Status to query: %s" %list(states))
-    op.add_option("-c", "--consumer", 
+    op.add_option("-c", "--consumer",
                   action="store", dest="consumer", default=None,
                   help="Consumer GUID to query")
-    op.add_option("-b", "--basic", 
+    op.add_option("-b", "--basic",
                   action="store_true", dest="basic",
                   help="Print Basic Information About Job(s)")
 
@@ -59,7 +59,7 @@ def main(args=None, func=_print_as_json):
     (options, args) = op.parse_args(args)
 
     configFile = _open_config(args[0])
-    
+
     query = {}
     if options.session: query['session'] = options.session
     if options.simulation: query['simulation'] = options.simulation
@@ -75,9 +75,9 @@ def main(args=None, func=_print_as_json):
             write_basic_job_info(sys.stdout, job, verbose=options.verbose)
         elif func is not None and callable(func):
             func(job, sys.stdout)
-            
+
         return job
-    
+
     try:
         pages = get_paging(configFile, SECTION, options, **query)
     except HTTPError as ex:

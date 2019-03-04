@@ -16,7 +16,7 @@ from turbine.commands.turbine_job_script import *
 from turbine.commands import _open_config
 
 if(sys.argv.__len__() < 4):
-    print "Need an input file, an output file, and a config file."
+    print("Need an input file, an output file, and a config file.")
     exit(1)
 
 

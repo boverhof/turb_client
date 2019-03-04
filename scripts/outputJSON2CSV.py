@@ -14,7 +14,7 @@ from turbine.commands import _open_config
 
 
 if(sys.argv.__len__() < 5):
-    print "Need an input json file, and input PSUADE file, an output PSAUDE file, and a config file."
+    print("Need an input json file, and input PSUADE file, an output PSAUDE file, and a config file.")
     exit(1)
 
 

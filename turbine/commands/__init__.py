@@ -39,14 +39,14 @@ def handler_http_error(func):
 
 
 def _print_page(page, out=sys.stdout):
-    print >>out, page
+    print(page, file=out)
 
 def _print_numbered_lines(data, out=sys.stdout):
-    for i in xrange(len(data)):
-        print >>out, '%d) %s' %(i,data[i])
+    for i in range(len(data)):
+        print('%d) %s' %(i,data[i]), file=out)
 
 def _print_as_json(data, out=sys.stdout):
-    print >>out, json.dumps(data)
+    print(json.dumps(data), file=out)
 
 """ Internal methods
 """

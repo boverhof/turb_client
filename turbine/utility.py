@@ -20,28 +20,28 @@ def basic_job_stats(fd, **job_d):
     """
     """
     if not job_d.get('Setup'): return
-    print >>fd, "==================================="
-    print >>fd, "=  Basic Stats Job %s" %job_d['Id']
-    print >>fd, "==================================="
+    print("===================================", file=fd)
+    print("=  Basic Stats Job %s" %job_d['Id'], file=fd)
+    print("===================================", file=fd)
 
     t1 = dateutil.parser.parse(job_d['Setup']) - dateutil.parser.parse(job_d['Create'])
-    print >>fd, "\t%12s -- %s" %('Queue', t1)
+    print("\t%12s -- %s" %('Queue', t1), file=fd)
     
     if not job_d.get('Running'): 
         t2 = datetime.datetime.utcnow() - dateutil.parser.parse(job_d['Setup'])
-        print >>fd, "\t%12s -- %s" %('Setup(Active)', t2)
+        print("\t%12s -- %s" %('Setup(Active)', t2), file=fd)
         return
 
     t2 = dateutil.parser.parse(job_d['Running']) - dateutil.parser.parse(job_d['Setup'])
-    print >>fd, "\t%12s -- %s" %('Setup', t2)
+    print("\t%12s -- %s" %('Setup', t2), file=fd)
 
     if not job_d.get('Finished'): 
         t3 = datetime.datetime.utcnow() - dateutil.parser.parse(job_d['Running'])
-        print >>fd, "\t%12s -- %s" %('Running', t3)
+        print("\t%12s -- %s" %('Running', t3), file=fd)
     else:
         t3 = dateutil.parser.parse(job_d['Finished']) - dateutil.parser.parse(job_d['Running'])
-        print >>fd, "\t%12s -- %s" %('Runtime', t3)
-        print >>fd, "\t%12s" %('Done')
+        print("\t%12s -- %s" %('Runtime', t3), file=fd)
+        print("\t%12s" %('Done'), file=fd)
 
 
 def runtime_stats(all_jobs, startName, endName):
@@ -81,27 +81,27 @@ def runtime_stats(all_jobs, startName, endName):
   return returnDict
 
 def print_single_stats(fd, runtime_dict):
-    print >>fd, "\t%12s -- %s" %("Total",str(runtime_dict['total']))
-    print >>fd, "\t%12s -- %s" %("Min",str(runtime_dict['min']))
-    print >>fd, "\t%12s -- %s" %("Mean",str(runtime_dict['mean']))
-    print >>fd, "\t%12s -- %s" %("Max",str(runtime_dict['max']))
+    print("\t%12s -- %s" %("Total",str(runtime_dict['total'])), file=fd)
+    print("\t%12s -- %s" %("Min",str(runtime_dict['min'])), file=fd)
+    print("\t%12s -- %s" %("Mean",str(runtime_dict['mean'])), file=fd)
+    print("\t%12s -- %s" %("Max",str(runtime_dict['max'])), file=fd)
 
 def print_runtime_stats(fd, runtime_dict):
     returnDict = {}
 
-    print >>fd, "Queue:"
+    print("Queue:", file=fd)
     returnDict["Queue"] = runtime_stats(runtime_dict, "Submit", "Setup")
     print_single_stats(fd, returnDict["Queue"]);
 
-    print >>fd, "Setup:"
+    print("Setup:", file=fd)
     returnDict["Setup"] = runtime_stats(runtime_dict, "Setup", "Running")
     print_single_stats(fd, returnDict["Setup"]);
 
-    print >>fd, "RunTime:"
+    print("RunTime:", file=fd)
     returnDict["RunTime"] = runtime_stats(runtime_dict, "Running", "Finished")
     print_single_stats(fd, returnDict["RunTime"]);
 
-    print >>fd, "Total:"
+    print("Total:", file=fd)
     returnDict["Total"] = runtime_stats(runtime_dict, "Submit", "Finished")
     print_single_stats(fd, returnDict["Total"]);
 
@@ -114,14 +114,14 @@ def basic_session_stats(fd, all, verbose=True):
     """
     """
     if len(all) == 0:
-        print (all)
+        print (all, file=fd)
         return
     
-    print >>fd, "Basic Statistics"
+    print("Basic Statistics", file=fd)
     for s in states:
         c = len(filter(lambda i: i['State'] == s, all))
         if c > 0 or verbose:
-            print >>fd, "\t%12s -- %d" %(s,c)
+            print("\t%12s -- %d" %(s,c), file=fd)
 
     all_l = filter(lambda i: (i.has_key("Running") and i.has_key("Setup") and i.has_key("Finished")), all)
     success_l = filter(lambda i: (i['State'] == 'success'), all_l)
@@ -135,15 +135,15 @@ def basic_session_stats(fd, all, verbose=True):
         dateutil.parser.parse(i['Submit']), all_l)
 
     if queue_l:
-        print >>fd, "Queue"
+        print("Queue", file=fd)
         t_max = max(queue_l)
 
         t_mean =  datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l))
         t_min = min(queue_l)
 
-        print >>fd, "\t%12s -- %s" %('max', t_max)
-        print >>fd, "\t%12s -- %s" %('mean', t_mean)
-        print >>fd, "\t%12s -- %s" %('min', t_min)
+        print("\t%12s -- %s" %('max', t_max), file=fd)
+        print("\t%12s -- %s" %('mean', t_mean), file=fd)
+        print("\t%12s -- %s" %('min', t_min), file=fd)
 
     all_l = filter(lambda i: i.has_key('Running'), all_l)
     queue_l = map(lambda i: dateutil.parser.parse(i['Running']) - dateutil.parser.parse(i['Setup']), all_l)
@@ -153,10 +153,10 @@ def basic_session_stats(fd, all, verbose=True):
         t_mean = datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l))
         t_min = min(queue_l)
                                      
-        print >>fd, "Setup"
-        print >>fd, "\t%12s -- %s" %('max', t_max)
-        print >>fd, "\t%12s -- %s" %('mean', t_mean)
-        print >>fd, "\t%12s -- %s" %('min', t_min)
+        print("Setup", file=fd)
+        print("\t%12s -- %s" %('max', t_max), file=fd)
+        print("\t%12s -- %s" %('mean', t_mean), file=fd)
+        print("\t%12s -- %s" %('min', t_min), file=fd)
 
     
     queue_l = map(lambda i: dateutil.parser.parse(i['Finished']) - 
@@ -166,10 +166,10 @@ def basic_session_stats(fd, all, verbose=True):
         t_mean = datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l))
         t_min = min(queue_l)
         
-        print >>fd, "Success Runtime (%d)" %len(queue_l)
-        print >>fd, "\t%12s -- %s" %('max', t_max)
-        print >>fd, "\t%12s -- %s" %('mean', t_mean)
-        print >>fd, "\t%12s -- %s" %('min', t_min)
+        print("Success Runtime (%d)" %len(queue_l), file=fd)
+        print("\t%12s -- %s" %('max', t_max), file=fd)
+        print("\t%12s -- %s" %('mean', t_mean), file=fd)
+        print("\t%12s -- %s" %('min', t_min), file=fd)
 
     
     #if len(success_l) < 2: return
@@ -181,14 +181,14 @@ def basic_session_stats(fd, all, verbose=True):
 
     try:
         run_time = last_to_finish[-1] - first_to_setup[0]
-        print >>fd, "Total Runtime Session (success only): ", run_time
+        print("Total Runtime Session (success only): %s" %str(run_time), file=fd)
     except:
         pass
 
     if verbose:
         tail = int(0.10 * len(all_l))
-        print >>fd, "Slowest Runtime Individuals (%d/%d)" %(tail,len(all_l))
-        print >>fd, "\t%10s %18s %18s %18s %18s" %("Id","Queue","Setup","Runtime","Total")
+        print("Slowest Runtime Individuals (%d/%d)" %(tail,len(all_l)), file=fd)
+        print("\t%10s %18s %18s %18s %18s" %("Id","Queue","Setup","Runtime","Total"), file=fd)
         all_times = map(lambda i: (i['Id'],
                                    dateutil.parser.parse(i['Setup'])-dateutil.parser.parse(i['Submit']),
                                    dateutil.parser.parse(i['Running'])-dateutil.parser.parse(i['Setup']),
@@ -197,41 +197,41 @@ def basic_session_stats(fd, all, verbose=True):
                         success_l)
         all_times.sort(lambda x,y: int((y[3]-x[3]).total_seconds()))
         for i in all_times[:tail]:
-            print >>fd, '\t%10s -- %15s -- %15s -- %15s -- %15s' %i
+            print('\t%10s -- %15s -- %15s -- %15s -- %15s' %i, file=fd)
    
     #error_l = filter(lambda i: i.has_key('Running') and i.has_key('Finished'), all_l)
     #queue_l = map(lambda i: dateutil.parser.parse(i['Finished']) - 
     #    dateutil.parser.parse(i['Running']), error_l)
 
     if error_l:
-        print >>fd, "Total Errors (%d)" %len(error_l)
-        print >>fd, ""
+        print("Total Errors (%d)" %len(error_l), file=fd)
+        print("", file=fd)
         l = filter(lambda i: i.get('Running') is None, error_l)
-        print >>fd, "  Error Setup (%d)" %len(l),
+        print("  Error Setup (%d)" %len(l), file=fd)
         if len(l):
-            print >>fd, ": setup time stats"
+            print(": setup time stats", file=fd)
             queue_l = map(lambda i: dateutil.parser.parse(i['Finished']) - dateutil.parser.parse(i['Setup']), l)
-            print >>fd, "\t%12s -- %s" %('max', max(queue_l))
-            print >>fd, "\t%12s -- %s" %('mean', datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l)))
-            print >>fd, "\t%12s -- %s" %('min', min(queue_l))
+            print("\t%12s -- %s" %('max', max(queue_l)), file=fd)
+            print("\t%12s -- %s" %('mean', datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l))), file=fd)
+            print("\t%12s -- %s" %('min', min(queue_l)), file=fd)
         else:
-            print >>fd, ""
+            print("", file=fd)
 
         l = filter(lambda i: i.get('Running') is not None and i.get('Finished') is not None, error_l)
-        print >>fd, "  Error Running (%d)" %len(l),
+        print("  Error Running (%d)" %len(l), file=fd)
         if len(l):
-            print >>fd, ": runtime stats"
+            print(": runtime stats", file=fd)
             queue_l = map(lambda i: dateutil.parser.parse(i['Finished']) - dateutil.parser.parse(i['Running']), l)
-            print >>fd, "\t%12s -- %s" %('max', max(queue_l))
-            print >>fd, "\t%12s -- %s" %('mean', datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l)))
-            print >>fd, "\t%12s -- %s" %('min', min(queue_l))
+            print("\t%12s -- %s" %('max', max(queue_l)), file=fd)
+            print("\t%12s -- %s" %('mean', datetime.timedelta(0, sum(map(lambda m: m.total_seconds(), queue_l))/len(queue_l))), file=fd)
+            print("\t%12s -- %s" %('min', min(queue_l)), file=fd)
         else:
-            print >>fd, ""
+            print("", file=fd)
 
     if not verbose: 
         return
     
-    print >>fd, "== Consumers Job Success"
+    print("== Consumers Job Success", file=fd)
     total_d = {}
     count_d = {}
     setup_d = {}
@@ -254,7 +254,7 @@ def basic_session_stats(fd, all, verbose=True):
             end_d[i['Consumer']] = finished
         end_d[i['Consumer']] = dateutil.parser.parse(i['Finished'] )
 
-    print >>fd, "    %30s  %5s   %14s   %14s   %14s" %("Consumer", "Count", "Total", "Runtime", "Overhead")
+    print("    %30s  %5s   %14s   %14s   %14s" %("Consumer", "Count", "Total", "Runtime", "Overhead"), file=fd)
 
     i = 1
     items = count_d.items()
@@ -267,8 +267,5 @@ def basic_session_stats(fd, all, verbose=True):
     for k,count in items:
         v = total_d[k]
         total = end_d[k]-setup_d[k]
-        print >>fd, "%2d %12s  |  %5s  |  %12s  |  %12s  |  %12s" %(i,k,count,total,v,total-v)
+        print("%2d %12s  |  %5s  |  %12s  |  %12s  |  %12s" %(i,k,count,total,v,total-v), file=fd)
         i += 1
-
-    #print >>fd, "Wait Time: ", (run_time - total)
-        
