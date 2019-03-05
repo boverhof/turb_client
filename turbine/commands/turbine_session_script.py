@@ -284,7 +284,7 @@ def get_results(cp, sessionid, options):
     """ Gets all jobs from the session and return them as a list """
     # default values for a few important items
 
-    url = cp.get(SECTION, 'url') + sessionid
+    url = '/'.join([cp.get(SECTION, 'url').strip('/'),sessionid])
     #rpp = getFromConfigWithDefaults(cp,SECTION, 'rpp', '100')
     verbose = getFromConfigWithDefaults(cp, SECTION, 'verbose', 'false')
 

@@ -335,7 +335,7 @@ def delete_page(configFile, section, **kw):
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
-        url += subr
+        url = '/'.join([url.strip('/'),subr])
     request = urllib.request.Request(url, data=None)
     request.get_method = lambda: 'DELETE'
     _log.getLogger(__name__).debug("DELETE URL: %s", url)
@@ -392,7 +392,7 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
-        url += subr
+        url = '/'.join([url.strip('/'),subr])
 
     data = _encode_codec(data, content_type)
     request = urllib.request.Request(url, data=data)
@@ -420,7 +420,7 @@ def post_page_by_url(url, configFile, section, data, headers={}, **kw):
     _setup(configFile, url)
     subr = kw.get('subresource')
     if subr is not None:
-        url += subr
+        url = '/'.join([url.strip('/'),subr])
     d = _urlopen(url, data, headers=headers)
     _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("BODY:\n%s", data)
@@ -442,7 +442,7 @@ def get_page_by_url(url, configFile, **extra_query):
     query = {}
     for k, v in extra_query.items():
         if k == 'subresource' and v:
-            url += v
+            url = '/'.join([url.strip('/'),v])
         elif callable(v):
             query[k] = v()
         else:
@@ -465,7 +465,7 @@ def standardizeOptions(url, options, **extra_query):
     query = {}
     for k, v in extra_query.items():
         if k == 'subresource' and v:
-            url += v
+            url = '/'.join([url.strip('/'),v])
         elif callable(v):
             query[k] = v()
         else:
