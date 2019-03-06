@@ -37,7 +37,7 @@ class SimulationReadTest(BaseIntegrationTestCase):
         simulation_list = tss.main_list([self.config_name], func=None)
         simulation_names = map(lambda i: i['Name'], simulation_list)
         self.log.debug('simulation names %s' % simulation_names)
-        self.failUnless(set([]).issubset(simulation_names),
+        self.assertTrue(set([]).issubset(simulation_names),
                         '%s not superset' % simulation_names)
 
 
@@ -47,7 +47,7 @@ class SessionReadTest(BaseIntegrationTestCase):
         l = tss.main_list([self.config_name], func=None)
         self.log.debug('simulation names %s' %
                        map(lambda f: (f['Name'], f['Id']), l))
-        self.failUnless(type(l) is list, 'return type should be list')
+        self.assertTrue(type(l) is list, 'return type should be list')
 
 
 class ApplicationReadTest(BaseIntegrationTestCase):
@@ -55,7 +55,7 @@ class ApplicationReadTest(BaseIntegrationTestCase):
     def test_GET_List(self):
         l = tas.main_list([self.config_name], func=None)
         self.log.debug('Application names %s' % l)
-        self.failUnless(type(l) is list, 'return type should be list')
+        self.assertTrue(type(l) is list, 'return type should be list')
 
 
 if __name__ == "__main__":
