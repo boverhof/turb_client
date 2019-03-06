@@ -125,19 +125,20 @@ def main_update(args=None):
 
     kw['subresource'] = '%s/input/%s' % (simulation, options.resource)
 
-    contents = open(file_name, 'rb').read()
-    try:
-        data = put_page(configFile, SECTION, contents, **kw)
-    except HTTPError as ex:
-        _log.error("HTTP Code %d :  %s", ex.code, ex.msg)
-        if hasattr(ex, 'readlines'):
-            _log.debug("".join(ex.readlines()))
-        else:
-            _log.debug("".join(ex.read()))
-        raise
-    except urllib.error.URLError as ex:
-        _log.error("URLError :  %s", ex.reason)
-        raise
+    with open(file_name, 'rb') as fd:
+        contents = fd.read()
+        try:
+            data = put_page(configFile, SECTION, contents, **kw)
+        except HTTPError as ex:
+            _log.error("HTTP Code %d :  %s", ex.code, ex.msg)
+            if hasattr(ex, 'readlines'):
+                _log.debug("".join(ex.readlines()))
+            else:
+                _log.debug("".join(ex.read()))
+            raise
+        except urllib.error.URLError as ex:
+            _log.error("URLError :  %s", ex.reason)
+            raise
 
     return data
 

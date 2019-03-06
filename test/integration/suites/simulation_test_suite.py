@@ -70,48 +70,56 @@ class SimulationWriteTest(BaseIntegrationTestCase):
         #self.failUnlessEqual(type(data), dict)
 
     def test_create_simulation(self):
-        """ NOTE:
+        """ configuration files saved with UNIX line seperators '\n'.
+        when reading them back from the web server on Windows the
+        line separator is '\r\n'.
         """
         config_path = self.simulation_config
-        self.failUnless(os.path.isfile(config_path),
+        self.assertTrue(os.path.isfile(config_path),
                         'No File "%s"' % config_path)
-        #defaults_path = self.simulation_defaults
-        # self.failUnless(os.path.isfile(defaults_path))
         app_path = self.simulation_file
-        self.failUnless(os.path.isfile(app_path))
-
+        self.assertTrue(os.path.isfile(app_path))
         name = self.simulation_name
         data = tsim.main_create([name, self.application, self.config_name])
-
-        self.failUnlessEqual(type(data), dict)
-        self.failUnlessEqual(len(data), 4, data)
-
+        self.assertEqual(type(data), dict)
+        self.assertEqual(len(data), 4, data)
         self.log.debug('PUT sinter config')
-        self.failUnless(tsim.main_update(
+        self.assertTrue(tsim.main_update(
             ['-r', 'configuration', name, config_path, self.config_name]))
 
         self.log.debug('PUT Application file')
-        self.failUnless(tsim.main_update(
+        self.assertTrue(tsim.main_update(
             ['-r', 'aspenfile', name, app_path, self.config_name]))
 
         data = tsim.main_get([name, self.config_name], func=None)
-        self.failUnlessEqual(len(data), 4)
-        self.failUnlessEqual(type(data), dict)
-
-        data = tsim.main_get(
-            ['-r', 'configuration', name, self.config_name], func=None)
-        with open(config_path, encoding='utf-8') as fd:
-            self.failUnlessEqual(
-                data, fd.read(), 'sinter config file does not match')
-
+        self.assertEqual(len(data), 4)
+        self.assertEqual(type(data), dict)
+        data = tsim.main_get(['-r', 'configuration', name, self.config_name], func=None)
+        #data = data.replace(os.linesep, '\n')
+        fdata = ''
+        with open(config_path, encoding='latin-1', newline='\n') as fd:
+            fdata = fd.read()
+            
+        obj1 = json.loads(data)
+        obj2 = json.loads(fdata)
+        self.assertEqual(list(obj1.keys()),
+            ['title', 'description', 'aspenfile', 'author', 'date', 'Application',
+             'Simulation', 'filetype', 'version', 'settings', 'inputs', 'outputs'])
+        self.assertEqual(list(obj1.keys()), list(obj2.keys()))
+        for k in obj1:
+            self.assertEqual(obj1[k], obj2[k],
+                             'key value mismatch %s \n  "%r"  \n  "%r"' %(k, obj1[k], obj2[k]))
+            
+        self.assertEqual(obj1, obj2, 'sinter config file does not match')
         data = tsim.main_get(
             ['-r', 'aspenfile', name, self.config_name], func=None)
         # NOTE: disable universal newlines handling on Python 3 newline=''
         with open(app_path, encoding='latin-1', newline='') as fd:
             fdata = fd.read()
-            self.failUnlessEqual(len(data), len(
-                fdata), 'length aspenfile does not match')
-            self.failUnlessEqual(data, fdata, 'aspenfile does not match')
+            
+        self.assertEqual(len(data), len(
+            fdata), 'length aspenfile does not match')
+        self.assertEqual(data, fdata, 'aspenfile does not match')
 
 
 if __name__ == "__main__":
