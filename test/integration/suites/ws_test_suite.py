@@ -20,12 +20,12 @@ class ConsumerReadTest(BaseIntegrationTestCase):
 
     def test_GET_List(self):
         data = tcs.main([self.config_name], func=None)
-        self.log.debug('data:  %s' %data)
+        self.log.debug('data:  %s' % data)
         #l = map(lambda i: i['Id'], data)
         #self.log.debug('consumers:  %d' %len(l))
-        self.log.debug('consumers:  %d' %len(data))
+        self.log.debug('consumers:  %d' % len(data))
         for d in data:
-            #self.failUnlessEqual(d.keys(),
+            # self.failUnlessEqual(d.keys(),
             #     ['AMI', 'status', 'processID', 'instanceID', 'hostname', 'Id']
             #     )
             u = uuid.UUID(str(d))
@@ -36,25 +36,26 @@ class SimulationReadTest(BaseIntegrationTestCase):
     def test_GET_List(self):
         simulation_list = tss.main_list([self.config_name], func=None)
         simulation_names = map(lambda i: i['Name'], simulation_list)
-        self.log.debug('simulation names %s' %simulation_names)
-        self.failUnless(set([]).issubset(simulation_names),
-                        '%s not superset' %simulation_names)
+        self.log.debug('simulation names %s' % simulation_names)
+        self.assertTrue(set([]).issubset(simulation_names),
+                        '%s not superset' % simulation_names)
 
 
 class SessionReadTest(BaseIntegrationTestCase):
 
     def test_GET_List(self):
         l = tss.main_list([self.config_name], func=None)
-        self.log.debug('simulation names %s' %map(lambda f: (f['Name'],f['Id']), l))
-        self.failUnless(type(l) is list,'return type should be list')
+        self.log.debug('simulation names %s' %
+                       map(lambda f: (f['Name'], f['Id']), l))
+        self.assertTrue(type(l) is list, 'return type should be list')
 
 
 class ApplicationReadTest(BaseIntegrationTestCase):
 
     def test_GET_List(self):
         l = tas.main_list([self.config_name], func=None)
-        self.log.debug('Application names %s' %l)
-        self.failUnless(type(l) is list,'return type should be list')
+        self.log.debug('Application names %s' % l)
+        self.assertTrue(type(l) is list, 'return type should be list')
 
 
 if __name__ == "__main__":

@@ -5,7 +5,8 @@ psuade2JSON
 See LICENSE.md for copyright notice!
 """
 
-import sys,os
+import sys
+import os
 import json
 import optparse
 import sys
@@ -16,9 +17,8 @@ from turbine.commands.turbine_job_script import *
 from turbine.commands import _open_config
 
 if(sys.argv.__len__() < 4):
-    print "Need an input file, an output file, and a config file."
+    print("Need an input file, an output file, and a config file.")
     exit(1)
-
 
 
 CP = _open_config(sys.argv[3])
@@ -31,6 +31,3 @@ outfile = open(sys.argv[2], "w+")
 outJsonString = json.dump(inputsJson, outfile, indent=2)
 
 outfile.close()
-
-
-

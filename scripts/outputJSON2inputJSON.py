@@ -7,11 +7,12 @@ Takes a set of JSON result from the server and turns it back into an input set f
 See LICENSE.md for copyright notice!
 """
 
-import sys,os
+import sys
+import os
 import json
 
 if(sys.argv.__len__() != 3):
-    print "USAGE: outputJSON2inputJSON.py outputJSONFile inputJSONFile"
+    print("USAGE: outputJSON2inputJSON.py outputJSONFile inputJSONFile")
     sys.exit(1)
 
 infile = open(sys.argv[1], "r+")

@@ -9,7 +9,8 @@ import logging as _log
 from turbine.commands import turbine_session_script
 try:
     turbine_session_script.main_jobs_status()
-except Exception,ex:
+except Exception as ex:
     log = _log.getLogger(__name__)
     log.error(ex)
-    sys.exit(1)
+    #sys.exit(1)
+    raise
