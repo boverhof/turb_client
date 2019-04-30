@@ -379,6 +379,7 @@ def _decode_codec(data, content_type):
             codec_name = 'latin-1'
         else:
             codec_name = 'utf-8'
+        _log.getLogger(__name__).debug("Type: %s", type(data))
         return data.decode(codec_name)
     _log.getLogger(__name__).error("Bad Data Type %s", type(data))
     raise RuntimeError("Bad Data Type %s" % type(data))
