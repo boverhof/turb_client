@@ -56,7 +56,7 @@ def _print_numbered_lines(data, out=sys.stdout):
         print('%d) %s' % (i, data[i]), file=out)
 
 
-def _print_as_json(data, out=sys.stdout):
+def _print_as_json(data, out=sys.stdout, **kw):
     print(json.dumps(data), file=out)
 
 
@@ -456,6 +456,7 @@ def get_page_by_url(url, configFile, **extra_query):
 
 def get_page(configFile, section, **extra_query):
     url = configFile.get(section, 'url')
+    _log.getLogger(__name__).debug('get_page url: "%s"', url)
     content = get_page_by_url(url, configFile, **extra_query)
     return content
 

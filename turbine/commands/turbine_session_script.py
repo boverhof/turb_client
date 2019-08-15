@@ -147,7 +147,12 @@ def main_create_jobs(args=None, func=_print_page):
 
     log = _log.getLogger(__name__)
     log.debug("main_create_jobs")
-    input_data = json.loads(open(jobs_file).read())
+
+    try:
+        with open(jobs_file) as fd:
+            input_data = json.load(fd)
+    except FileNotFoundError:
+        input_data = json.loads(jobs_file)
 
     assert(type(input_data) is list)
 
@@ -274,7 +279,7 @@ def main_start_jobs(args=None, func=_print_page):
 
     _log.getLogger(__name__).debug("main_start_jobs")
     page = start_jobs(configFile, sessionid)
-    data = int(page)
+    data = json.loads(page)
     if func:
         func(data)
     return data
