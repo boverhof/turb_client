@@ -395,6 +395,8 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     if subr is not None:
         url = '/'.join([url.strip('/'),subr])
 
+    ## AWS: Get Signed URL and PUT
+
     data = _encode_codec(data, content_type)
     request = urllib.request.Request(url, data=data)
     request.add_header('Content-Type', content_type)
