@@ -1,16 +1,23 @@
+###############################################################################
+# Carbon Caputure Simulation Initiative
+# See LICENSE.md for copyright notice!
+##############################################################################
 """
-requests_base:  'requests' module drop in replacement
-
-Joshua R. Boverhof, LBNL
-See LICENSE.md for copyright notice!
+requests_base module is a drop-in replacement for Turbine Web Application
+functions utilizing the python requests module.
 """
+__author__ = 'Joshua Boverhof <jrboverhof@lbl.gov>'
 import os,logging,requests,configparser
 from requests.exceptions import RequestException, HTTPError, ConnectionError
 
 #def standard_options(url, options, **extra_query):
 def read_configuration(configFile, section, **kw):
-    """
-    http query parameters (kw):
+    """ Read the turbine configuration ConfigParser instance and
+    build the URL.
+    parameters:
+        configFile : ConfigParser instance
+        section : ConfigParser section
+    keyword arguments:  (http query parameters):
         page
         rpp
         SignedUrl
@@ -19,6 +26,8 @@ def read_configuration(configFile, section, **kw):
     assert type(kw.get('SignedUrl', False)) is bool
     params = {}
     url = configFile.get(section, 'url')
+    signed_url = configFile.getboolean(section, 'SignedUrl', fallback=None)
+    logging.getLogger(__name__).debug('kw %s' %str(kw))
     for k,v in kw.items():
         if k == 'subresource' and v:
             url = '/'.join([url.strip('/'),v])
@@ -26,6 +35,12 @@ def read_configuration(configFile, section, **kw):
             params[k] = v()
         else:
             params[k] = v
+    logging.getLogger(__name__).debug('read_configuration signed_url: "%s"', signed_url)
+    if 'SignedUrl' not in params and signed_url is not None:
+        params['SignedUrl'] = signed_url
+    if 'SignedUrl' in params and url.endswith('/input/configuration'):
+        logging.getLogger(__name__).debug('configuration signed_url unsupported')
+        del params['SignedUrl']
     signed_url = params.get('SignedUrl', False)
     assert type(signed_url) is bool
     verbose =  params.get('verbose', False)
@@ -36,6 +51,7 @@ def read_configuration(configFile, section, **kw):
     assert type(int(pagenum)) is int
     auth = (configFile.get('Authentication', 'username', raw=True),
         configFile.get('Authentication', 'password', raw=True))
+
     return (url, auth, params)
 
 def delete_page(configFile, section, **kw):
@@ -72,18 +88,28 @@ def _get_page(url, auth, **params):
     return requests.get(url, params=params, auth=auth)
 
 def put_page(configFile, section, data, **kw):
+    """
+    """
     url,auth,params = read_configuration(configFile,section,**kw)
     signed_url = params.get('SignedUrl', False)
     if signed_url is True:
-        logging.getLogger(__name__).debug('put_page signed_url: "%s"', url)
+        #logging.getLogger(__name__).debug('put_page signed_url: "%s" "%s"', url, str(params))
         r = _put_page(url, auth, data='', allow_redirects=False, **params)
-        assert r.status_code == 302
+        assert r.status_code == 302, "HTTP Status Code %d" %r.status_code
         url = r.headers.get('Location')
         auth = None
         del params['SignedUrl']
-    return _put_page(url, auth, data, **params)
+    #logging.getLogger(__name__).debug('put_page: "%s" "%s"', url, str(params))
+    r = _put_page(url, auth, data, allow_redirects=True, **params)
+    #if raw_data
+    #    return r.raw
+    logging.getLogger(__name__).debug('HTTP PUT(%s)', r.status_code)
+    if r.status_code != 200:
+        logging.getLogger(__name__).error('upload failed: %s' str(r.__dict__))
+        raise RuntimeError("HTTP PUT(%s) failure for %s" %(r.status_code,url))
+    return r.text
 
-def _put_page(url, auth, **params):
+def _put_page(url, auth, data=None, allow_redirects=False, **params):
     """
     parameters:
         auth --- username and password tuple
@@ -91,6 +117,6 @@ def _put_page(url, auth, **params):
         -- SignedUrl, service will return signed S3 URL and it Will
         automatically be followed.
     """
-    assert type(auth) is tuple
-    logging.getLogger(__name__).debug('_put_page url: "%s"', url)
-    return requests.get(url, params=params, auth=auth)
+    assert type(auth) in (tuple,type(None)), '%s' %type(auth)
+    logging.getLogger(__name__).debug('_put_page url: "%s" "%s"', url, params)
+    return requests.put(url, data, allow_redirects=allow_redirects, params=params, auth=auth)
