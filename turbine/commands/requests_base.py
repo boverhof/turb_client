@@ -92,7 +92,11 @@ def put_page(configFile, section, data, **kw):
     """
     url,auth,params = read_configuration(configFile,section,**kw)
     signed_url = params.get('SignedUrl', False)
-    if signed_url is True:
+    if url.split('/')[-2] == 'simulation':
+        logging.getLogger(__name__).debug('upload simulation meta data')
+        if 'SignedUrl' in params:
+            del params['SignedUrl']
+    elif signed_url is True:
         #logging.getLogger(__name__).debug('put_page signed_url: "%s" "%s"', url, str(params))
         r = _put_page(url, auth, data='', allow_redirects=False, **params)
         assert r.status_code == 302, "HTTP Status Code %d" %r.status_code
@@ -105,7 +109,7 @@ def put_page(configFile, section, data, **kw):
     #    return r.raw
     logging.getLogger(__name__).debug('HTTP PUT(%s)', r.status_code)
     if r.status_code != 200:
-        logging.getLogger(__name__).error('upload failed: %s' str(r.__dict__))
+        logging.getLogger(__name__).error('upload failed: %s' %str(r.__dict__))
         raise RuntimeError("HTTP PUT(%s) failure for %s" %(r.status_code,url))
     return r.text
 
