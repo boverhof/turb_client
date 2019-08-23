@@ -424,6 +424,7 @@ def post_page_by_url(url, configFile, section, data, headers={}, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url = '/'.join([url.strip('/'),subr])
+    _log.getLogger(__name__).info('post_page_by_url: url="%s"',  url)
     d = _urlopen(url, data, headers=headers)
     _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("BODY:\n%s", data)

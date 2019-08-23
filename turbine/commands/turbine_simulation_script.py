@@ -108,7 +108,7 @@ def main_update(args=None):
     if len(args) != 3:
         op.error('expecting 3 arguments')
 
-    _log.debug(args)
+    _log.debug('main_update: %s' %args)
 
     file_name = args[1]
     if not os.path.isfile(file_name):
