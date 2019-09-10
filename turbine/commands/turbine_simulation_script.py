@@ -16,20 +16,20 @@ import sys
 import os
 import json
 import uuid
-import logging as _log
+import logging
 import optparse
-from urllib.error import HTTPError
-from turbine.commands import add_options, add_json_option, get_page, get_paging, put_page, post_page,\
-    _open_config, load_pages_json, delete_page, _print_page
+from .requests_base import get_page, put_page, delete_page
+from . import add_options, add_json_option,\
+    _open_config, load_pages_json, _print_page
 
 SECTION = "Simulation"
-
+_log = logging.getLogger(__name__)
 
 def _print_json(data, verbose=False, out=sys.stdout):
     if type(data) in (list, dict):
         json.dump(data, out)
     else:
-        print(data, end="", file=out)
+        print(data, file=out)
 
 
 def _print_simulation_list(all, verbose=False, out=sys.stdout):
@@ -83,7 +83,7 @@ def main_create(args=None):
     try:
         data = put_page(cp, SECTION, data,
                         content_type='application/json', **kw)
-    except HTTPError as ex:
+    except urllib.error.HTTPError as ex:
         _log.error(ex)
         if hasattr(ex, 'readlines'):
             _log.error("".join(ex.readlines()))
@@ -108,8 +108,7 @@ def main_update(args=None):
     if len(args) != 3:
         op.error('expecting 3 arguments')
 
-    log = _log.getLogger('%s.main_update' % __name__)
-    log.debug(args)
+    _log.debug('main_update: %s' %args)
 
     file_name = args[1]
     if not os.path.isfile(file_name):
@@ -129,7 +128,7 @@ def main_update(args=None):
         contents = fd.read()
         try:
             data = put_page(configFile, SECTION, contents, **kw)
-        except HTTPError as ex:
+        except urllib.error.HTTPError as ex:
             _log.error("HTTP Code %d :  %s", ex.code, ex.msg)
             if hasattr(ex, 'readlines'):
                 _log.debug("".join(ex.readlines()))
@@ -228,15 +227,13 @@ def main_delete(args=None, func=_print_page):
     except Exception as ex:
         op.error(ex)
 
-    log = _log.getLogger(__name__)
-
     try:
         page = delete_page(configFile, SECTION,
                            subresource='%s' % simulationName)
-    except HTTPError as ex:
-        log.error(ex)
+    except urllib.error.HTTPError as ex:
+        _log.error(ex)
         raise
-    log.debug("PAGE: %s" % page)
+    _log.debug("PAGE: %s" % page)
 
     return page
 

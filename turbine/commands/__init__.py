@@ -56,7 +56,7 @@ def _print_numbered_lines(data, out=sys.stdout):
         print('%d) %s' % (i, data[i]), file=out)
 
 
-def _print_as_json(data, out=sys.stdout):
+def _print_as_json(data, out=sys.stdout, **kw):
     print(json.dumps(data), file=out)
 
 
@@ -379,6 +379,7 @@ def _decode_codec(data, content_type):
             codec_name = 'latin-1'
         else:
             codec_name = 'utf-8'
+        _log.getLogger(__name__).debug("Type: %s", type(data))
         return data.decode(codec_name)
     _log.getLogger(__name__).error("Bad Data Type %s", type(data))
     raise RuntimeError("Bad Data Type %s" % type(data))
@@ -393,6 +394,8 @@ def _put_page_by_url(url, configFile, section, data, content_type='application/o
     subr = kw.get('subresource')
     if subr is not None:
         url = '/'.join([url.strip('/'),subr])
+
+    ## AWS: Get Signed URL and PUT
 
     data = _encode_codec(data, content_type)
     request = urllib.request.Request(url, data=data)
@@ -421,6 +424,7 @@ def post_page_by_url(url, configFile, section, data, headers={}, **kw):
     subr = kw.get('subresource')
     if subr is not None:
         url = '/'.join([url.strip('/'),subr])
+    _log.getLogger(__name__).info('post_page_by_url: url="%s"',  url)
     d = _urlopen(url, data, headers=headers)
     _log.getLogger(__name__).info("HTTP POST(%d): %s", d.code, url)
     _log.getLogger(__name__).debug("BODY:\n%s", data)
@@ -455,6 +459,7 @@ def get_page_by_url(url, configFile, **extra_query):
 
 def get_page(configFile, section, **extra_query):
     url = configFile.get(section, 'url')
+    _log.getLogger(__name__).debug('get_page url: "%s"', url)
     content = get_page_by_url(url, configFile, **extra_query)
     return content
 
