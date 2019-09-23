@@ -87,10 +87,11 @@ def _get_page(url, auth, **params):
     logging.getLogger(__name__).debug('_get_page url: "%s"', url)
     return requests.get(url, params=params, auth=auth)
 
-def put_page(configFile, section, data, **kw):
+def put_page(configFile, section, data, content_type='', **kw):
     """
     """
     url,auth,params = read_configuration(configFile,section,**kw)
+    headers = {'Content-Type': content_type}
     signed_url = params.get('SignedUrl', False)
     if url.split('/')[-2] == 'simulation':
         logging.getLogger(__name__).debug('upload simulation meta data')
@@ -104,7 +105,7 @@ def put_page(configFile, section, data, **kw):
         auth = None
         del params['SignedUrl']
     #logging.getLogger(__name__).debug('put_page: "%s" "%s"', url, str(params))
-    r = _put_page(url, auth, data, allow_redirects=True, **params)
+    r = _put_page(url, auth, data, allow_redirects=True, headers=headers, **params)
     #if raw_data
     #    return r.raw
     logging.getLogger(__name__).debug('HTTP PUT(%s)', r.status_code)
@@ -113,7 +114,7 @@ def put_page(configFile, section, data, **kw):
         raise RuntimeError("HTTP PUT(%s) failure for %s" %(r.status_code,url))
     return r.text
 
-def _put_page(url, auth, data=None, allow_redirects=False, **params):
+def _put_page(url, auth, data=None, allow_redirects=False, headers={}, **params):
     """
     parameters:
         auth --- username and password tuple
@@ -123,4 +124,4 @@ def _put_page(url, auth, data=None, allow_redirects=False, **params):
     """
     assert type(auth) in (tuple,type(None)), '%s' %type(auth)
     logging.getLogger(__name__).debug('_put_page url: "%s" "%s"', url, params)
-    return requests.put(url, data, allow_redirects=allow_redirects, params=params, auth=auth)
+    return requests.put(url, data, allow_redirects=allow_redirects, params=params, auth=auth, headers=headers)
