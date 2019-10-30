@@ -206,7 +206,7 @@ def main_list(args=None, func=_print_simulation_list):
     content = get_page(configFile, SECTION, **query)
     data = load_pages_json([content])
     if func:
-        func(data, options.verbose)
+        func(data, verbose=options.verbose)
 
     return data
 
